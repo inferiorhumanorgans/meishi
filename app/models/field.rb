@@ -1,7 +1,7 @@
 class Field < ActiveRecord::Base
   belongs_to :contact
 
-  validates_presence_of :name, :value, :contact
+  validates_presence_of :name, :value
 
   # FN = Full Name
   # N = Family Name;Given Name;Additional Names;Honorific Prefixes;Honorific Suffixes
