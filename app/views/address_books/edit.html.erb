@@ -1,0 +1,10 @@
+<div class="window">
+<h2>Edit &ldquo;<%= @address_book.name -%>&rdquo;</h2>
+
+<%= form_for(@address_book) do |f| %>
+  <%= render 'form', :f => f %>
+  <div>
+    <%= f.submit "Update" %>
+  </div>
+<% end -%>
+</div>

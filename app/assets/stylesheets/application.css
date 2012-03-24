@@ -11,3 +11,51 @@
  *= require_self
  *= require_tree .
 */
+    BODY {
+      font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      font-weight: 300;
+      font-size: 12pt;
+    }
+    A {
+      text-decoration: none;
+      -webkit-transition: color 0.5s ease-in-out;
+      -moz-transition: color 0.5s ease-in-out;
+      color: navy;
+    }
+    A:hover {
+      color: blue;
+    }
+    H2,H3 {
+      font-weight: 500;
+    }
+    DIV.page {
+      background: none repeat scroll 0 0 #F0F0F0;
+      height: 100%;
+      left: 0;
+      overflow: hidden;
+      position: absolute;
+      top: 0;
+      width: 100%;
+      z-index: 30;
+    }
+    DIV.window {
+      border: 1px solid black;
+      padding: 0.5em;
+      width: 33%;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 8%;
+      background-color: #FAFAFA;
+    }
+    DIV.window > H2 {
+      text-align: center;
+      width: 100%;
+      font-weight: normal;
+      font-variant: small-caps;
+    }
+    DIV.window DIV.form_element {
+      margin-bottom: 0.75em;
+    }
+    DIV.whole {
+      margin: 1em;
+    }

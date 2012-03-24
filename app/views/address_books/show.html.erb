@@ -1,0 +1,16 @@
+<div class="whole">
+<h2><%= @address_book.name -%></h2>
+
+<% unless @address_book.contacts.empty? -%>
+<ul>
+  <% @address_book.contacts.each do |contact| -%>
+  <li>#<%= contact.id -%>: <%= link_to contact.vcard.name.fullname, address_book_contact_url(@address_book, contact) -%></li>
+  <% end -%>
+</ul>
+<%= link_to 'Create a contact', new_address_book_contact_url(@address_book) -%>.
+<%= link_to 'Edit address book', edit_address_book_url(@address_book) -%>.
+<%= link_to 'Back to address book list', root_url -%>.
+<% else -%>
+This address book is empty. Begin by <%= link_to 'creating a contact', new_address_book_contact_url(@address_book) %>.
+<% end -%>
+</div>

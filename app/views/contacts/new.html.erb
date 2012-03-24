@@ -1,0 +1,14 @@
+<style type="text/css">
+ INPUT[type='text'] {
+   width: 95%;
+ }
+</style>
+<div class="window">
+	<h2>Contact for &ldquo;<%= @address_book.name -%>&rdquo;</h2>
+	<%= form_for([@address_book, @contact]) do |f| %>
+    <%= render 'form', :f => f %>
+    <div>
+      <%= f.submit "Create" -%> <%= link_to 'Back to address book', address_book_url(@address_book) -%>
+    </div>
+  <% end -%>
+</div>

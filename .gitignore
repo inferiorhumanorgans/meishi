@@ -13,3 +13,5 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+Gemfile.lock
+config/initializers/00_first_initializer.rb
