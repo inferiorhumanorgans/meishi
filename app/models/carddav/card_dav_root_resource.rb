@@ -6,14 +6,14 @@ module Carddav
     end
 
     def creation_date
-      # Look up the current group and return that
-      Time.now
+      # TODO: Old habits die hard, there's probably a nicer way to do this
+      contact_ids = AddressBook.find_all_by_user_id(1).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
+      Field.first(:order => 'created_at ASC', :conditions => ['contact_id IN (?)', contact_ids]).created_at
     end
 
     def last_modified
-      # Look up the current group and return the mtime of
-      # the most recent child
-      Time.now
+      contact_ids = AddressBook.find_all_by_user_id(1).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
+      Field.first(:order => 'updated_at DESC', :conditions => ['contact_id IN (?)', contact_ids]).updated_at
     end
 
     def get_property(name)
