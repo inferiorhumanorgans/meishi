@@ -1,6 +1,6 @@
 # This class has some stuff common to the address books, their collections, and contacts
 module Carddav
-  class AddressBookBaseResource < CardDavResource
+  class AddressBookBaseResource < BaseResource
     # name:: Name of child
     # Create a new child with the given name
     # NOTE:: Include trailing '/' if child is collection  

@@ -1,7 +1,8 @@
 module Carddav
-  class CardDavResource < DAV4Rack::Resource
+  class BaseResource < DAV4Rack::Resource
     BASE_PROPERTIES = %w(creationdate displayname getlastmodified getetag resourcetype getcontenttype getcontentlength)
 
+    # Make OSX's AddressBook.app happy :(
     def setup
       @fully_qualified = false
     end

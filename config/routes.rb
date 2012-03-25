@@ -13,7 +13,7 @@ Meishi::Application.routes.draw do
   match '/carddav/', :to => DAV4Rack::Handler.new(
     :root => '/carddav',
     :root_uri_path => '/carddav',
-    :resource_class => Carddav::CardDavRootResource,
+    :resource_class => Carddav::PrincipalResource,
     :controller_class => CardDavBaseController
   ), :constraints => lambda {|r| r.env["force_http_auth"] = true; r.env["warden"].authenticate!}
 

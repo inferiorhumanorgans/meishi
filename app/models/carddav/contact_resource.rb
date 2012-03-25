@@ -1,6 +1,6 @@
 module Carddav
   class ContactResource < AddressBookBaseResource
-    ALL_CARD_PROPERTIES = CardDavResource::BASE_PROPERTIES + %w(address-data)
+    ALL_CARD_PROPERTIES = BaseResource::BASE_PROPERTIES + %w(address-data)
     EXPLICIT_CARD_PROPERTIES = %w(supported-collation-set supported-address-data)
 
     def collection?
