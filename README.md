@@ -2,6 +2,8 @@
 
 __A lightweight CardDAV server built on Rails 3__
 
+Yup.  Lightweight, and not in the LDAP is lightweight sense.  Meishi aims to be lightweight and easy to deploy in the "install a few gems and go" sense.
+
 ## Requirements
 
 * Rails 3.2
@@ -34,4 +36,4 @@ To get started:
 
 ## License
 
-GPLv3 unless otherwise noted.
+4-clause BSD unless otherwise noted.
