@@ -27,8 +27,11 @@ describe AddressBooksController do
     end
 
     it "should return a not found error when given no arguments" do
-      get :edit, {}
-      response.should be_not_found
+      # It would be nice to ensure that the user will see a 404
+      # not a 500 or a stack trace.
+      # response.should be_not_found
+
+      expect { get :edit, {} }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     it "should return successfully with arguments" do
@@ -46,8 +49,7 @@ describe AddressBooksController do
 
   describe "GET show" do
     it "should return a not found error when given no arguments" do
-      get :show, {}
-      response.should be_not_found
+      expect { get :show, {} }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     it "should return successfully" do
