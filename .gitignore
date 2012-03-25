@@ -15,3 +15,6 @@
 /tmp
 Gemfile.lock
 config/initializers/00_first_initializer.rb
+
+# For simplecov
+coverage
