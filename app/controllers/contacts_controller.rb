@@ -46,17 +46,14 @@ class ContactsController < ApplicationController
 
   private
   def check_permissions
-    @address_book = AddressBook.find_by_id_and_user_id(params[:address_book_id], current_user.id)
-
-    raise ActiveRecord::RecordNotFound if @address_book.nil?
+    @address_book = AddressBook.find_by_id_and_user_id(params[:address_book_id], current_user.id) || not_found
 
     if @address_book.user.id != current_user.id
       render :status => :forbidden, :text => "Don't access another user's objects"
     end
 
     if params[:id]
-      @contact = Contact.find_by_uid_and_address_book_id(params[:id], @address_book.id)
-      raise ActiveRecord::RecordNotFound if @contact.nil?
+      @contact = Contact.find_by_uid_and_address_book_id(params[:id], @address_book.id) || not_found
     end
   end
 end
