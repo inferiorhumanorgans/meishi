@@ -4,7 +4,8 @@ describe AddressBooksController do
   always_login_user_1
 
   before (:each) do
-    @address_book = AddressBook.make!(:address_book1)
+    @address_book1 = AddressBook.make!(:address_book1)
+    @address_book2 = AddressBook.make!(:address_book2)
   end
 
   describe "GET new" do
@@ -34,10 +35,16 @@ describe AddressBooksController do
       expect { get :edit, {} }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
-    it "should return successfully with arguments" do
+    it "should return successfully when provided with an address book belonging to the current user" do
       get :edit, {:id => '1'}
       response.should be_success
     end
+
+    it "should return forbidden when provided with an address book not belonging to the current user" do
+      get :edit, {:id => '2'}
+      response.should be_forbidden
+    end
+
   end
   
   describe "GET update" do

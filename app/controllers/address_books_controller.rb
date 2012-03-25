@@ -34,8 +34,11 @@ class AddressBooksController < ApplicationController
   private
   def check_permissions
     if params[:id]
-      @address_book = AddressBook.find_by_id_and_user_id(params[:id], current_user.id) || not_found
-      if @address_book.user.id != current_user.id
+      @address_book = AddressBook.find_by_id(params[:id]) || not_found
+
+      # TODO: Make this more similar to 404/Not Found
+      # Create a global exception handler in top level controller and helper
+      if @address_book.user_id != current_user.id
         render :status => :forbidden, :text => "Don't access another user's objects"
       end
     end
