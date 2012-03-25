@@ -100,7 +100,7 @@ module Carddav
       '"None"'
     end
 
-    # TODO: It would probably be nicer to handle this in rails
+    # TODO: It would be more efficient to handle updating mtime with an after_update hook
     def last_modified
       ([@address_book.updated_at]+@address_book.contacts.collect{|c| c.updated_at}).max
     end

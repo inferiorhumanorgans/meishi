@@ -29,6 +29,8 @@ To get started:
 * Submit pull requests to or properly fork dav4rack so we can use it as a gem and not a deprecated plugin
 * Tests, tests, and more tests
 * Fill in the DAV bits
+* Refactor the DAV controller
+* grep -r TODO * | egrep -v "^(README|Binary)" | cut -d ' ' -f 2- | sed 's/.*#.//g'
 
 ## License
 

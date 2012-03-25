@@ -42,7 +42,9 @@ module Carddav
     end
 
     def creation_date
-      # TODO: Old habits die hard, there's probably a nicer way to do this
+      # TODO: There's probably a more efficient way to grab the oldest ctime
+      # Perhaps we should assume that the address book will never be newer than
+      # any of its constituent contacts?
       contact_ids = AddressBook.find_all_by_user_id(1).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
       Field.first(:order => 'created_at ASC', :conditions => ['contact_id IN (?)', contact_ids]).created_at
     end
