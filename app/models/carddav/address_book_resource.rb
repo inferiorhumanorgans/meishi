@@ -68,7 +68,7 @@ module Carddav
 
     def content_type
       # Not the right type, oh well
-      Mime::Type.lookup_by_extension(:txt).to_s
+      Mime::Type.lookup_by_extension(:dir).to_s
     end
 
     def creation_date
