@@ -30,6 +30,7 @@ gem 'vcard'
 gem 'warden'
 gem 'rails_warden'
 gem 'devise'
+gem 'dav4rack', :git => 'https://inferiorhumanorgans@github.com/inferiorhumanorgans/dav4rack.git'
 
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
