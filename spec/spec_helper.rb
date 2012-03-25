@@ -82,4 +82,7 @@ RSpec.configure do |config|
   # This is gross.
   config.include ControllerMacros, :type => :controller
   config.extend ControllerMacros, :type => :controller
+
+  config.include ModelMacros, :type => :model
+  config.extend ModelMacros, :type => :model
 end
