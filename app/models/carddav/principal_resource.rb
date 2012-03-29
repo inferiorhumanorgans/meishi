@@ -20,6 +20,10 @@ module Carddav
       return true
     end
     
+    def children
+      []
+    end
+
     def get_property(element)
       Rails.logger.error "Principal::get_property(#{element[:namespace]}:#{element[:name]})"
 
