@@ -22,6 +22,45 @@ module Carddav
       @contact = Contact.find_by_uid_and_address_book_id(uid, @address_book.id)
     end
 
+    def put(request, response)
+      b = request.body.read
+
+      # TODO: Ensure we only have one vcard per request
+      vcf = Vpim::Vcard.decode(b).first
+
+      # Pull out all the fields we specify ourselves.
+      contents = vcf.fields.select {|f| !(%w(BEGIN VERSION UID END).include? f.name) }
+
+      uid = vcf.value('UID')
+
+      # TODO: Check for If-None-Match
+      # error if present, update/overwrite if not
+      raise Conflict if Contact.find_by_uid(uid)
+
+      @contact = Contact.new
+      @contact.address_book = @address_book
+      @contact.uid = uid
+      contents.each do |f|
+        @contact.fields.build(:name => f.name, :value => f.value)
+      end
+      
+      if @contact.save
+        response['Location'] = "/book/#{@address_book.id}/#{@contact.uid}"
+        Created
+      else
+        # Is another error more appropriate?
+        raise Conflict
+      end
+    end
+
+    # Overload parent in this case because we want a different class (AddressBookResource)
+    def parent
+      Rails.logger.error "Contact::Parent FOR: #{@public_path}"
+      elements = File.split(@public_path)
+      return nil if (elements.first == '/book')
+      AddressBookResource.new(elements.first, elements.first, @request, @response, @options.merge(:user => @user))
+    end
+    
     # Some properties shouldn't be included in an allprop request
     # but it's nice to do some sanity checking so keeping a list is good
     def property_names
