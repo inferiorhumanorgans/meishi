@@ -12,7 +12,9 @@ module Carddav
       Rails.logger.error request_document.to_xml
       if not request_document.xpath("/#{c_ns}addressbook-multiget").empty?
         Rails.logger.error "REPORT addressbook-multiget"
-        props = request_document.xpath("/#{c_ns}addressbook-multiget/#{ns}prop").children.find_all{|n| n.element?}.map{|n| n.name}.compact
+        props = request_document.xpath("/#{c_ns}addressbook-multiget/#{ns}prop").children.find_all{|n| n.element?}.map{|n|
+          {:name => n.name, :namespace => n.namespace.prefix, :ns_href => n.namespace.href}
+        }
         hrefs = request_document.xpath("/#{c_ns}addressbook-multiget/#{ns}href").collect{|n| 
           text = n.text
           path = URI.parse(text).path
