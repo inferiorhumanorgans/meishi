@@ -35,7 +35,7 @@ module Carddav
     end
 
     def collection?
-      false
+      true
     end
 
     def children
