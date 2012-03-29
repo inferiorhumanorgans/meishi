@@ -61,6 +61,12 @@ module Carddav
       AddressBookResource.new(elements.first, elements.first, @request, @response, @options.merge(:user => @user))
     end
 
+    def delete
+      # TODO: Proper authorization, is this OUR contact?
+      @contact.destroy
+      NoContent
+    end
+
     # Some properties shouldn't be included in an allprop request
     # but it's nice to do some sanity checking so keeping a list is good
     def property_names
