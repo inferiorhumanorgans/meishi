@@ -101,7 +101,7 @@ module Carddav
     end
 
     def getctag
-      s="<x0:getctag xmlns:x0='http://calendarserver.org/ns/'>#{@address_book.updated_at.to_i}</x0:getctag>"
+      s="<APPLE1:getctag xmlns:APPLE1='http://calendarserver.org/ns/'>#{@address_book.updated_at.to_i}</APPLE1:getctag>"
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
