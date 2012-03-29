@@ -121,6 +121,14 @@ module Carddav
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
+    def supported_address_data
+      s=
+      "<C:supported-address-data xmlns:C='urn:ietf:params:xml:ns:carddav'>
+        <C:address-data-type content-type='text/vcard' version='3.0' />
+       </C:supported-address-data>"
+      return Nokogiri::XML::DocumentFragment.parse(s)
+    end
+
     def supported_report_set
       reports = %w(addressbook-multiget addressbook-query)
       s = "<D:supported-report-set>%s</D:supported-report-set>"
