@@ -5,7 +5,7 @@ module Carddav
     # allprop request.  It's nice to keep a list of all the properties we support
     # in the first place, so let's keep a separate list of the ones that need to
     # be explicitly requested.
-    ALL_BOOK_PROPERTIES =  BaseResource::BASE_PROPERTIES.merge({
+    ALL_BOOK_PROPERTIES =  BaseResource::merge_properties(BaseResource::BASE_PROPERTIES, {
       "urn:ietf:params:xml:ns:carddav" => %w(
         current-user-privilege-set
         max-resource-size
@@ -58,7 +58,7 @@ module Carddav
       name = element[:name]
       namespace = element[:ns_href]
 
-      unless (merge_properties(ALL_BOOK_PROPERTIES,EXPLICIT_BOOK_PROPERTIES))[namespace].include? name
+      unless (BaseResource::merge_properties(ALL_BOOK_PROPERTIES,EXPLICIT_BOOK_PROPERTIES))[namespace].include? name
         raise NotFound
       end
 

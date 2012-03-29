@@ -27,13 +27,14 @@ module Carddav
     end
 
     protected
-    def merge_properties(all, explicit)
+    def self.merge_properties(all, explicit)
       ret = all.dup
       explicit.each do |key, value|
-        all[key] ||= []
-        all[key] += value
-        all[key].uniq!
+        ret[key] ||= []
+        ret[key] += value
+        ret[key].uniq!
       end
+      ret
     end
 
   end

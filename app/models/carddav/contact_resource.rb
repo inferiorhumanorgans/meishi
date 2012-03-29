@@ -1,6 +1,6 @@
 module Carddav
   class ContactResource < AddressBookBaseResource
-    ALL_CARD_PROPERTIES = BaseResource::BASE_PROPERTIES.merge({
+    ALL_CARD_PROPERTIES = BaseResource::merge_properties(BaseResource::BASE_PROPERTIES, {
       'urn:ietf:params:xml:ns:carddav' => %w(address-data)
     })
     EXPLICIT_CARD_PROPERTIES = {}
@@ -40,7 +40,7 @@ module Carddav
       name = element[:name]
       namespace = element[:ns_href]
 
-      unless (merge_properties(ALL_CARD_PROPERTIES, EXPLICIT_CARD_PROPERTIES))[namespace].include? name
+      unless (BaseResource::merge_properties(ALL_CARD_PROPERTIES, EXPLICIT_CARD_PROPERTIES))[namespace].include? name
         raise NotFound
       end
 

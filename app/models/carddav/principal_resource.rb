@@ -31,7 +31,7 @@ module Carddav
       name = element[:name]
       namespace = element[:ns_href]
 
-      unless (merge_properties(ALL_PROPERTIES, EXPLICIT_PROPERTIES))[namespace].include?(name)
+      unless (BaseResource::merge_properties(ALL_PROPERTIES, EXPLICIT_PROPERTIES))[namespace].include?(name)
         raise NotFound
       end
 
