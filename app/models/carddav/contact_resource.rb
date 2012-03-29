@@ -52,7 +52,7 @@ module Carddav
         return Nokogiri::XML::DocumentFragment.parse(s)
       end
 
-      return super(name)
+      return super(element)
     end
 
     def content_type
