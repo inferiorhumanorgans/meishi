@@ -60,7 +60,7 @@ module Carddav
       return nil if (elements.first == '/book')
       AddressBookResource.new(elements.first, elements.first, @request, @response, @options.merge(:user => @user))
     end
-    
+
     # Some properties shouldn't be included in an allprop request
     # but it's nice to do some sanity checking so keeping a list is good
     def property_names
@@ -100,7 +100,7 @@ module Carddav
 
     def exist?
       Rails.logger.error "ContactR::exist?(#{public_path});"
-      return true if Contact.find(File.split(public_path).last)
+      return true if Contact.find_by_uid(File.split(public_path).last)
       return false
     end
   end
