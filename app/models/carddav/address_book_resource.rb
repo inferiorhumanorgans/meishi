@@ -6,8 +6,8 @@ module Carddav
     # in the first place, so let's keep a separate list of the ones that need to
     # be explicitly requested.
     ALL_BOOK_PROPERTIES =  BaseResource::merge_properties(BaseResource::BASE_PROPERTIES, {
+      'DAV:' => %w( current-user-privilege-set ),
       "urn:ietf:params:xml:ns:carddav" => %w(
-        current-user-privilege-set
         max-resource-size
         supported-address-data
         supported-report-set
@@ -45,7 +45,7 @@ module Carddav
         child c.uid.to_s
       end
     end
-
+    
     # Some properties shouldn't be included in an allprop request
     # but it's nice to do some sanity checking so keeping a list is good
     def property_names
