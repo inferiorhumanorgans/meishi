@@ -4,7 +4,8 @@ module Carddav
 
     # Make OSX's AddressBook.app happy :(
     def setup
-      @fully_qualified = false
+      @propstat_relative_path = true
+      @root_xml_attributes = {'xmlns:C' => 'urn:ietf:params:xml:ns:carddav', 'xmlns:APPLE1' => 'http://calendarserver.org/ns/'}
     end
 
     def warden

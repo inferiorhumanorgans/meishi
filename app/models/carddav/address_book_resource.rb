@@ -47,9 +47,13 @@ module Carddav
       ALL_BOOK_PROPERTIES
     end
 
-    def get_property(name)
-      Rails.logger.error "AddressBook::get_book_property(#{name})"
-      unless (ALL_BOOK_PROPERTIES+EXPLICIT_BOOK_PROPERTIES).include? name
+    def get_property(element)
+      Rails.logger.error "AddressBook::get_book_property(#{element})"
+      
+      name = element[:name]
+      namespace = element[:ns_href]
+
+      unless BaseController::NAMESPACES.include?(namespace) and (ALL_BOOK_PROPERTIES+EXPLICIT_BOOK_PROPERTIES).include?(name)
         raise NotFound
       end
 
@@ -57,7 +61,7 @@ module Carddav
       fn = '_DAV_' + name.underscore
       return self.send(fn.to_sym) if self.respond_to? fn
       
-      super(name)
+      super(element)
     end
 
     ## Properties follow in alphabetical order

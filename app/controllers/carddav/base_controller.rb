@@ -1,6 +1,8 @@
 module Carddav
 
   class BaseController < DAV4Rack::Controller
+    
+    NAMESPACES = %w(urn:ietf:params:xml:ns:carddav DAV:)
 
     # TODO: Should really move towards inheriting from the proper rails classes
     # Anyhow the intent here is to ensure that the DAV header gets set for every
@@ -16,11 +18,6 @@ module Carddav
     def options
       @response["Allow"] = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
       OK
-    end
-
-    def multistatus(&block)
-      render_xml(:multistatus, {'xmlns:C' => 'urn:ietf:params:xml:ns:carddav'}, &block)
-      MultiStatus
     end
 
   end

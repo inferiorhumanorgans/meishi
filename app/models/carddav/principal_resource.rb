@@ -19,18 +19,22 @@ module Carddav
     def collection?
       return true
     end
+    
+    def get_property(element)
+      Rails.logger.error "Principal::get_property(#{element[:namespace]}:#{element[:name]})"
 
-    def get_property(name)
-      Rails.logger.error "Principal::get_property(#{name})"
-      unless (ALL_PROPERTIES+EXPLICIT_PROPERTIES).include? name
+      name = element[:name]
+      namespace = element[:ns_href]
+
+      unless BaseController::NAMESPACES.include?(namespace) and (ALL_PROPERTIES+EXPLICIT_PROPERTIES).include?(name)
         raise NotFound
       end
 
       # dav4rack aliases everything by default, so...
       fn = '_DAV_' + name.underscore
       return self.send(fn.to_sym) if self.respond_to? fn
-      
-      super(name)
+
+      super(element)
     end
 
     ## Properties follow in alphabetical order
