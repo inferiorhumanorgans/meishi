@@ -109,6 +109,8 @@ module Carddav
       ([@address_book.updated_at]+@address_book.contacts.collect{|c| c.updated_at}).max
     end
 
+    # Limit vCards to 1k for now.
+    # TODO: Enforce max-resource-size
     def max_resource_size
       1024
     end
