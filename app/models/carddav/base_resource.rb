@@ -1,6 +1,15 @@
 module Carddav
   class BaseResource < DAV4Rack::Resource
-    BASE_PROPERTIES = %w(creationdate displayname getlastmodified getetag resourcetype getcontenttype getcontentlength)
+    BASE_PROPERTIES = {
+      'DAV:' => %w(
+        creationdate
+        displayname
+        getlastmodified
+        getetag
+        resourcetype
+        getcontenttype
+        getcontentlength
+      )}
 
     # Make OSX's AddressBook.app happy :(
     def setup
@@ -16,5 +25,16 @@ module Carddav
       @current_user ||= warden.authenticate(:scope => :user)
       @current_user
     end
+
+    protected
+    def merge_properties(all, explicit)
+      ret = all.dup
+      explicit.each do |key, value|
+        all[key] ||= []
+        all[key] += value
+        all[key].uniq!
+      end
+    end
+
   end
 end

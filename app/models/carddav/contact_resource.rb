@@ -1,7 +1,9 @@
 module Carddav
   class ContactResource < AddressBookBaseResource
-    ALL_CARD_PROPERTIES = BaseResource::BASE_PROPERTIES + %w(address-data)
-    EXPLICIT_CARD_PROPERTIES = %w(supported-collation-set supported-address-data)
+    ALL_CARD_PROPERTIES = BaseResource::BASE_PROPERTIES.merge({
+      'urn:ietf:params:xml:ns:carddav' => %w(address-data)
+    })
+    EXPLICIT_CARD_PROPERTIES = {}
 
     def collection?
       false
@@ -33,10 +35,12 @@ module Carddav
     def last_modified
       @contact.updated_at
     end
+    
+    def get_property(element)
+      name = element[:name]
+      namespace = element[:ns_href]
 
-    def get_property(name)
-      Rails.logger.error "AddressBook::get_contact_property(#{name})"
-      unless (ALL_CARD_PROPERTIES+EXPLICIT_CARD_PROPERTIES).include? name
+      unless (merge_properties(ALL_CARD_PROPERTIES, EXPLICIT_CARD_PROPERTIES))[namespace].include? name
         raise NotFound
       end
 

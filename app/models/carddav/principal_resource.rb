@@ -1,13 +1,14 @@
 module Carddav
   class PrincipalResource < BaseResource
 
-    ALL_PROPERTIES = BaseResource::BASE_PROPERTIES + %w(
-    )
+    ALL_PROPERTIES = BaseResource::BASE_PROPERTIES
 
-    EXPLICIT_PROPERTIES = %w(
-      addressbook-home-set
-      principal-address
-    )
+    EXPLICIT_PROPERTIES = { 
+      'urn:ietf:params:xml:ns:carddav' => %w(
+        addressbook-home-set
+        principal-address
+      )
+    }
 
     def exist?
       ret = false
@@ -30,7 +31,7 @@ module Carddav
       name = element[:name]
       namespace = element[:ns_href]
 
-      unless BaseController::NAMESPACES.include?(namespace) and (ALL_PROPERTIES+EXPLICIT_PROPERTIES).include?(name)
+      unless (merge_properties(ALL_PROPERTIES, EXPLICIT_PROPERTIES))[namespace].include?(name)
         raise NotFound
       end
 

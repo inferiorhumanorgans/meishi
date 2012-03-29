@@ -5,19 +5,24 @@ module Carddav
     # allprop request.  It's nice to keep a list of all the properties we support
     # in the first place, so let's keep a separate list of the ones that need to
     # be explicitly requested.
-    ALL_BOOK_PROPERTIES = BaseResource::BASE_PROPERTIES + %w(
-      current-user-privilege-set
-      getctag
-      max-resource-size
-      supported-address-data
-      supported-report-set
-    )
+    ALL_BOOK_PROPERTIES =  BaseResource::BASE_PROPERTIES.merge({
+      "urn:ietf:params:xml:ns:carddav" => %w(
+        current-user-privilege-set
+        max-resource-size
+        supported-address-data
+        supported-report-set
+      ),
+      'http://calendarserver.org/ns/' => %w( getctag )
+    })
 
-    EXPLICIT_BOOK_PROPERTIES = %w(
-      addressbook-description
-      max-resource-size
-      supported-collation-set
-    )
+    EXPLICIT_BOOK_PROPERTIES = {
+      'urn:ietf:params:xml:ns:carddav' => %w(
+        addressbook-description
+        max-resource-size
+        supported-collation-set
+        supported-address-data
+      )
+    }
 
     def setup
       super
@@ -53,7 +58,7 @@ module Carddav
       name = element[:name]
       namespace = element[:ns_href]
 
-      unless BaseController::NAMESPACES.include?(namespace) and (ALL_BOOK_PROPERTIES+EXPLICIT_BOOK_PROPERTIES).include?(name)
+      unless (merge_properties(ALL_BOOK_PROPERTIES,EXPLICIT_BOOK_PROPERTIES))[namespace].include? name
         raise NotFound
       end
 
