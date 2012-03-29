@@ -81,10 +81,10 @@ module Carddav
 
     def current_user_privilege_set
       privileges = %w(read write write-properties write-content read-acl read-current-user-privilege-set)
-      s='<C:current-user-privilege-set>%s</C:current-user-privilege-set>'
+      s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
 
       privileges_aggregate = privileges.inject('') do |ret, priv|
-        ret << '<privilege>%s</privilege>' % priv
+        ret << '<D:privilege><%s /></privilege>' % priv
       end
 
       s %= privileges_aggregate
