@@ -32,12 +32,24 @@ module Carddav
       contents = vcf.fields.select {|f| !(%w(BEGIN VERSION UID END).include? f.name) }
 
       uid = vcf.value('UID')
+      
+      raise BadRequest if uid =~ /\./ # Yeah, this'll break our routes.
 
-      # TODO: Check for If-None-Match
-      # error if present, update/overwrite if not
-      raise Conflict if Contact.find_by_uid(uid)
+      # Check for If-None-Match: *
+      # Section: 6.3.2
+      # If set, client does not want to clobber; error if contact present
+      want_new_contact = (request.env['HTTP_IF_NONE_MATCH'] == '*')
 
-      @contact = Contact.new
+      @contact = Contact.find_by_uid(uid)
+
+      # If the client has explicitly stated they want a new contact
+      raise Conflict if (want_new_contact and @contact)
+
+      # Otherwise let's update it
+      @contact.fields.clear if @contact
+
+      @contact ||= Contact.new
+
       @contact.address_book = @address_book
       @contact.uid = uid
       contents.each do |f|
@@ -61,7 +73,7 @@ module Carddav
 
       
       if @contact.save
-        response['Location'] = "/book/#{@address_book.id}/#{@contact.uid}"
+        @public_path = "/book/#{@address_book.id}/#{@contact.uid}"
         Created
       else
         # Is another error more appropriate?
