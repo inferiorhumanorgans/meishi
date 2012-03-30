@@ -8,6 +8,8 @@ Meishi::Application.routes.draw do
       resources :contacts
     end
   end
+  
+  get '/book/:address_book_id/:id(.:format)' => 'contacts#show'
 
   # TODO: Refactor these…
   match '/carddav/', :to => DAV4Rack::Handler.new(
