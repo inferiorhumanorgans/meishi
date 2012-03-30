@@ -27,6 +27,12 @@ class Contact < ActiveRecord::Base
   def vcard
     @vcard ||= Vpim::Vcard.decode(vcard_raw).first
   end
+
+  # This relies on FN existing, which it *SHOULD*
+  # A quick SQL lookup is much faster than vcard parsing
+  def quick_name
+    self.fields.find(:first, :conditions => {:name => 'FN'}).value
+  end
   
   def self.format_location (f)
     if f.respond_to? :capability
