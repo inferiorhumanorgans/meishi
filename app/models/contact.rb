@@ -3,6 +3,7 @@ class Contact < ActiveRecord::Base
   has_many :fields, :dependent => :destroy
   accepts_nested_attributes_for :fields, :reject_if => lambda { |f| f[:name].blank? or f[:value].blank?}, :allow_destroy => true
 
+  before_validation :set_uid
   after_update :clear_vcard
 
   validates_presence_of :address_book, :uid
@@ -46,5 +47,9 @@ class Contact < ActiveRecord::Base
   private
   def clear_vcard
     @vard = nil
+  end
+  
+  def set_uid
+    self.uid ||= UUIDTools::UUID.random_create.to_s
   end
 end

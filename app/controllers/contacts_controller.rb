@@ -15,7 +15,6 @@ class ContactsController < ApplicationController
   def create
     @contact = Contact.new(params[:contact])
     @contact.address_book = @address_book
-    @contact.uid = UUIDTools::UUID.random_create.to_s
 
     if @contact.save
       redirect_to(address_book_url(@address_book), :notice => 'Contact succesfully added to address book.')
