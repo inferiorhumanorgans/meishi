@@ -15,16 +15,30 @@ Yup.  Lightweight, and not in the LDAP is lightweight sense.  Meishi aims to be 
 * Rspec-rails
 * Machinist
 
-## Getting Started
+## Getting Started (server)
 
 To get started:
 
 * Unpack the application (git clone, tar -xf, unzip, etc)
 * Do the bundle stuff
 * Edit the database configuration file at config/database.yml as needed
-* Run the migrations (rake db:migrate)
-* Run rake meishi:first_run and follow the prompts
+* Use rake to run the migrations (db:migrate)
+* Run the rake task meishi:first_run and follow the prompts
 * Deploy with your favorite rack server (phusion, unicorn, mongrel, etc)
+
+## Getting Started (client)
+
+### Android CardDAV-Sync
+
+Read only support has been tested.  Autodiscovery should work, takes a principal URL will present the user with a list of address books to choose from.  Ex: https://carddav.example.com:80/carddav/
+
+### MacOS X AddresBook.app
+
+Has been tested with 10.6.8 and a single address book, and autodiscovery should work.  Takes the principal URL with the port number. Ex: https://carddav.example.com:80/carddav/
+
+### SoGo Connector
+
+Has been tested with Thunderbird 11 and read/write support should work.  Takes an address book URL.  The address book ID can be found from the web interface.  Ex:  https://carddav.example.com:80/book/123/
 
 ## TODO
 
