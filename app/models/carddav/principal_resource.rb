@@ -1,7 +1,9 @@
 module Carddav
   class PrincipalResource < BaseResource
 
-    ALL_PROPERTIES = BaseResource::BASE_PROPERTIES
+    ALL_PROPERTIES =  BaseResource::merge_properties(BaseResource::BASE_PROPERTIES, {
+      'DAV:' => %w( current-user-privilege-set )
+    })
 
     EXPLICIT_PROPERTIES = { 
       'urn:ietf:params:xml:ns:carddav' => %w(
@@ -35,9 +37,11 @@ module Carddav
         raise NotFound
       end
 
-      # dav4rack aliases everything by default, so...
+      # dav4rack aliases everything by default... but only in the current class
       fn = '_DAV_' + name.underscore
+
       return self.send(fn.to_sym) if self.respond_to? fn
+      return self.send(name.underscore.to_sym) if self.respond_to? name.underscore
 
       super(element)
     end
@@ -58,10 +62,16 @@ module Carddav
       Field.first(:order => 'created_at ASC', :conditions => ['contact_id IN (?)', contact_ids]).created_at
     end
 
-    # We should muck about in the routes and figure out the proper path
-    def current_user_principal
-      s='<D:current-user-principal xmlns:D="DAV:"><D:href>/carddav/</D:href></D:current-user-principal>'
-      Nokogiri::XML::DocumentFragment.parse(s)
+    def current_user_privilege_set
+      privileges = %w(read read-acl read-current-user-privilege-set)
+      s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
+
+      privileges_aggregate = privileges.inject('') do |ret, priv|
+        ret << '<D:privilege><%s /></privilege>' % priv
+      end
+
+      s %= privileges_aggregate
+      return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
     def last_modified
