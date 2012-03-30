@@ -17,10 +17,10 @@ class Contact < ActiveRecord::Base
     has_ab_uid = false
     self.fields.each do |f|
       data.push ('%s:%s' % [f.name, f.value])
-      has_ab_uid = true if (f.name == 'X-AB-UID')
+      has_ab_uid = true if (f.name == 'X-ABUID')
     end
     data.push "UID:%s" % self.uid
-    data.push "X-AB-UID:%s:ABPerson" % self.uid unless has_ab_uid
+    data.push "X-ABUID:%s\\:ABPerson" % self.uid unless has_ab_uid
     data.push "END:VCARD"
     return data.join("\n")
   end
