@@ -1,9 +1,9 @@
 <div class="whole">
 <h2><%= @address_book.name -%></h2>
 
-<% unless @address_book.contacts.empty? -%>
+<% unless @contacts.empty? -%>
 <ul>
-  <% @address_book.contacts.each do |contact| -%>
+  <% @contacts.each do |contact| -%>
   <li>#<%= contact.id -%>: <%= link_to contact.vcard.name.fullname, address_book_contact_url(@address_book, contact) -%></li>
   <% end -%>
 </ul>

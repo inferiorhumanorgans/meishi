@@ -29,6 +29,7 @@ class AddressBooksController < ApplicationController
   end
 
   def show
+    @contacts = @address_book.contacts.includes(:fields)
   end
 
   private
