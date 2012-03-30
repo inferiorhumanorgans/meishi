@@ -9,7 +9,7 @@ Meishi::Application.routes.draw do
     end
   end
   
-  get '/book/:address_book_id/:id(.:format)' => 'contacts#show'
+  get '/book/:address_book_id/:id(.:format)' => 'contacts#show', :defaults => {:format => :vcf}
 
   ## BEGIN MacOSX 10.6 hacks
   match '/', :to => DAV4Rack::Handler.new(
