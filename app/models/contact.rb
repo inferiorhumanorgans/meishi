@@ -1,5 +1,5 @@
 class Contact < ActiveRecord::Base
-  belongs_to :address_book
+  belongs_to :address_book, :touch => true
   has_many :fields, :dependent => :destroy
   accepts_nested_attributes_for :fields, :reject_if => lambda { |f| f[:name].blank? or f[:value].blank?}, :allow_destroy => true
 
