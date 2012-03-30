@@ -58,7 +58,7 @@ module Carddav
       # TODO: There's probably a more efficient way to grab the oldest ctime
       # Perhaps we should assume that the address book will never be newer than
       # any of its constituent contacts?
-      contact_ids = AddressBook.find_all_by_user_id(1).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
+      contact_ids = AddressBook.find_all_by_user_id(current_user.id).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
       Field.first(:order => 'created_at ASC', :conditions => ['contact_id IN (?)', contact_ids]).created_at
     end
 
@@ -75,7 +75,7 @@ module Carddav
     end
 
     def last_modified
-      contact_ids = AddressBook.find_all_by_user_id(1).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
+      contact_ids = AddressBook.find_all_by_user_id(current_user.id).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
       Field.first(:order => 'updated_at DESC', :conditions => ['contact_id IN (?)', contact_ids]).updated_at
     end
 
