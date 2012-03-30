@@ -4,7 +4,7 @@
 <% unless @contacts.empty? -%>
 <ul>
   <% @contacts.each do |contact| -%>
-  <li>#<%= contact.id -%>: <%= link_to contact.quick_name, address_book_contact_url(@address_book, contact) -%></li>
+  <li><span style="display: inline-block; width: 3em">#<%= contact.id -%></span><%= link_to contact.quick_name, address_book_contact_url(@address_book, contact) -%></li>
   <% end -%>
 </ul>
 <%= link_to 'Create a contact', new_address_book_contact_url(@address_book) -%>.
