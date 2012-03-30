@@ -43,6 +43,22 @@ module Carddav
       contents.each do |f|
         @contact.fields.build(:name => f.name, :value => f.value)
       end
+
+      # This is gross.  SoGo sometimes sends out vCard data w/o the mandatory N field
+      if vcf.value('N').nil?
+        @contact.fields.build(:name => 'N', :value => ';;;;')
+      end
+
+      # Haven't seen one of these, but just in case
+      if vcf.value('FN').nil?
+        if vcf.value('N').nil?
+          @contact.fields.build(:name => 'FN', :value => 'unnamed contact')
+        else
+          name
+          @contact.fields.build(:name => 'FN', :value => vcf.name.formatted)
+        end
+      end
+
       
       if @contact.save
         response['Location'] = "/book/#{@address_book.id}/#{@contact.uid}"
