@@ -2,7 +2,6 @@ class Contact < ActiveRecord::Base
   belongs_to :address_book
   has_many :fields, :dependent => :destroy
   accepts_nested_attributes_for :fields, :reject_if => lambda { |f| f[:name].blank? or f[:value].blank?}, :allow_destroy => true
-   VCARD_FORMAT = "BEGIN:VCARD\nVERSION:3.0\n%s\nEND:VCARD"
 
   after_update :clear_vcard
 
@@ -14,11 +13,13 @@ class Contact < ActiveRecord::Base
   
   def vcard_raw
     data = ["BEGIN:VCARD", "VERSION:3.0"]
+    has_ab_uid = false
     self.fields.each do |f|
       data.push ('%s:%s' % [f.name, f.value])
+      has_ab_uid = true if (f.name == 'X-AB-UID')
     end
     data.push "UID:%s" % self.uid
-    data.push "X-AB-UID:%s:ABPerson" % self.uid
+    data.push "X-AB-UID:%s:ABPerson" % self.uid unless has_ab_uid
     data.push "END:VCARD"
     return data.join("\n")
   end
