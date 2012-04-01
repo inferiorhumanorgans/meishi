@@ -32,6 +32,10 @@ To get started:
 
 Read only support has been tested.  Autodiscovery should work, takes a principal URL will present the user with a list of address books to choose from.  Ex: https://carddav.example.com:80/carddav/
 
+### CardDavMate
+
+Read only support has been tested.  Should work once you rip out the hardcoded-for-davical regexp in config.js.
+
 ### MacOS X AddresBook.app
 
 Has been tested with 10.6.8 and a single address book, and autodiscovery should work.  Takes the principal URL with the port number. Ex: https://carddav.example.com:80/carddav/
