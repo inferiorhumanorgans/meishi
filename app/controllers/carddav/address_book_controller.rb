@@ -12,7 +12,7 @@ module Carddav
       when 'addressbook-multiget'
         addressbook_multiget
       else
-        NotAcceptable
+        NotImplemented
       end
 
     end
