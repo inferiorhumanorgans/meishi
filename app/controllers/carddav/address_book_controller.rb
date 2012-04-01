@@ -21,12 +21,10 @@ module Carddav
     def addressbook_multiget
       Rails.logger.error "REPORT addressbook-multiget"
 
-      c_ns = ns('urn:ietf:params:xml:ns:carddav')
-
-      props = request_document.xpath("/#{c_ns}addressbook-multiget/#{ns}prop").children.find_all{|n| n.element?}.map{|n|
+      props = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('prop')}").children.find_all{|n| n.element?}.map{|n|
         {:name => n.name, :namespace => n.namespace.prefix, :ns_href => n.namespace.href}
       }
-      hrefs = request_document.xpath("/#{c_ns}addressbook-multiget/#{ns}href").collect{|n| 
+      hrefs = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('href')}").collect{|n| 
         text = n.text
         path = URI.parse(text).path
         Rails.logger.error "Scanned this HREF: #{text} PATH: #{path}"

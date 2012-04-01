@@ -19,6 +19,18 @@ module Carddav
       @response["Allow"] = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
       OK
     end
+    
+    protected
+
+    def xpath_element(name, ns_uri=:dav)
+      case ns_uri
+      when :dav
+        ns_uri = 'DAV:'
+      when :carddav
+        ns_uri = 'urn:ietf:params:xml:ns:carddav'
+      end
+      "*[local-name()='#{name}' and namespace-uri()='#{ns_uri}']"
+    end
 
   end
 
