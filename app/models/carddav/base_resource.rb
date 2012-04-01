@@ -27,7 +27,14 @@ module Carddav
       @current_user ||= warden.authenticate(:scope => :user)
       @current_user
     end
-    
+
+    def is_self?(other_path)
+      ary = [@public_path]
+      ary.push(@public_path+'/') if @public_path[-1] != '/'
+      ary.push(@public_path[0..-2]) if @public_path[-1] == '/'
+      ary.include? other_path
+    end
+
     def principal_url
       s="<D:principal-URL xmlns:D='DAV:'><D:href>/carddav/</D:href></D:principal-URL>"
       Nokogiri::XML::DocumentFragment.parse(s)

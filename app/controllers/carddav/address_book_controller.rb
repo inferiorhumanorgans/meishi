@@ -35,9 +35,13 @@ module Carddav
         hrefs.each do |_href|
           xml.response do
             xml.href _href
+
             path = File.split(URI.parse(_href).path).last
             Rails.logger.error "Creating child w/ ORIG=#{resource.public_path} HREF=#{_href} FILE=#{path}!"
-            if resource.public_path == _href
+
+            # TODO: Write a test to cover asking for a report expecting contact objects but given an address book path
+            # Yes, CardDAVMate does this.
+            if resource.is_self? _href
               propstats(xml, get_properties(resource, props))
             else
               propstats(xml, get_properties(resource.child(File.split(path).last), props))
