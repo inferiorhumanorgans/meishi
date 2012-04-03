@@ -80,9 +80,19 @@ module Carddav
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
+    def displayname
+      "#{current_user.username}'s Principal Resource"
+    end
+
     def last_modified
       contact_ids = AddressBook.find_all_by_user_id(current_user.id).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
       Field.first(:order => 'updated_at DESC', :conditions => ['contact_id IN (?)', contact_ids]).updated_at
+    end
+
+    # For legibility let's underscore it and let the supeclass call it
+    def resource_type
+      s='<resourcetype><D:collection /><D:principal/></resourcetype>'
+      return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
   end
