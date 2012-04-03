@@ -6,11 +6,13 @@ module Carddav
     # in the first place, so let's keep a separate list of the ones that need to
     # be explicitly requested.
     ALL_BOOK_PROPERTIES =  BaseResource::merge_properties(BaseResource::BASE_PROPERTIES, {
-      'DAV:' => %w( current-user-privilege-set ),
+      'DAV:' => %w(
+        current-user-privilege-set
+        supported-report-set
+      ),
       "urn:ietf:params:xml:ns:carddav" => %w(
         max-resource-size
         supported-address-data
-        supported-report-set
       ),
       'http://calendarserver.org/ns/' => %w( getctag )
     })
@@ -145,7 +147,7 @@ module Carddav
       s = "<D:supported-report-set>%s</D:supported-report-set>"
       
       reports_aggregate = reports.inject('') do |ret, report|
-        ret << '<D:report><%s /></D:report>' % report
+        ret << "<D:report><C:%s xmlns:C='urn:ietf:params:xml:ns:carddav'/></D:report>" % report
       end
       
       s %= reports_aggregate
