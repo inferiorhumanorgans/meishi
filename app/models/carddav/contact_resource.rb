@@ -57,21 +57,10 @@ module Carddav
       end
 
       # This is gross.  SoGo sometimes sends out vCard data w/o the mandatory N field
-      if vcf.value('N').nil?
-        @contact.fields.build(:name => 'N', :value => ';;;;')
+      if vcf.value('N').nil? or vcf.value('FN').nil?
+        raise BadRequest
       end
 
-      # Haven't seen one of these, but just in case
-      if vcf.value('FN').nil?
-        if vcf.value('N').nil?
-          @contact.fields.build(:name => 'FN', :value => 'unnamed contact')
-        else
-          name
-          @contact.fields.build(:name => 'FN', :value => vcf.name.formatted)
-        end
-      end
-
-      
       if @contact.save
         @public_path = "/book/#{@address_book.id}/#{@contact.uid}"
         Created
