@@ -44,6 +44,10 @@ class Contact < ActiveRecord::Base
     f.location.first
   end
   
+  def etag
+    '%s-%d' % [self.uid, self.updated_at.to_i]
+  end
+
   private
   def clear_vcard
     @vard = nil

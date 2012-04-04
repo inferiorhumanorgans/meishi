@@ -114,7 +114,7 @@ module Carddav
 
       case name
       when 'getetag'
-        return '"%s-%d"' % [@contact.uid, @contact.updated_at.to_i]
+        return @contact.etag
       when 'address-data'
         s = '<C:address-data xmlns:C="urn:ietf:params:xml:ns:carddav"><![CDATA[%s]]></C:address-data>' % @contact.vcard.to_s
         return Nokogiri::XML::DocumentFragment.parse(s)
