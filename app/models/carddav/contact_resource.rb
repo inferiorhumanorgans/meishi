@@ -69,6 +69,7 @@ module Carddav
 
       if @contact.save
         @public_path = "/book/#{@address_book.id}/#{@contact.uid}"
+        response['ETag'] = @contact.etag
         Created
       else
         # Is another error more appropriate?
