@@ -62,7 +62,8 @@ module Carddav
       end
 
       # This is gross.  SoGo sometimes sends out vCard data w/o the mandatory N field
-      if vcf.value('N').nil? or vcf.value('FN').nil?
+      # And Vpim gobbles up the FN field so it's inaccessible directly
+      if vcf.value('N').nil? or vcf.value('N').fullname.empty?
         raise BadRequest
       end
 
