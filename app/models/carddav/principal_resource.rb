@@ -1,11 +1,15 @@
 module Carddav
   class PrincipalResource < BaseResource
 
-    ALL_PROPERTIES =  BaseResource::merge_properties(BaseResource::BASE_PROPERTIES, {
-      'DAV:' => %w( current-user-privilege-set )
-    })
+    ALL_PROPERTIES =  BaseResource::BASE_PROPERTIES
 
     EXPLICIT_PROPERTIES = { 
+      'DAV:' => %w(
+        alternate-URI-set
+        current-user-privilege-set
+        group-membership
+        group-membership-set
+      ),
       'urn:ietf:params:xml:ns:carddav' => %w(
         addressbook-home-set
         principal-address
@@ -60,6 +64,11 @@ module Carddav
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
+    def alternate_uri_set
+      s="<D:alternate-URI-set xmlns:D='DAV:' />"
+      Nokogiri::XML::DocumentFragment.parse(s)
+    end
+
     def creation_date
       # TODO: There's probably a more efficient way to grab the oldest ctime
       # Perhaps we should assume that the address book will never be newer than
@@ -82,6 +91,16 @@ module Carddav
 
     def displayname
       "#{current_user.username}'s Principal Resource"
+    end
+
+    def group_membership
+      s="<D:group-membership xmlns:D='DAV:' />"
+      Nokogiri::XML::DocumentFragment.parse(s)
+    end
+
+    def group_membership_set
+      s="<D:group-membership-set xmlns:D='DAV:' />"
+      Nokogiri::XML::DocumentFragment.parse(s)
     end
 
     def last_modified
