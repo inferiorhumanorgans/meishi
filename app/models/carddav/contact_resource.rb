@@ -25,8 +25,13 @@ module Carddav
     def put(request, response)
       b = request.body.read
 
-      # TODO: Ensure we only have one vcard per request
-      vcf = Vpim::Vcard.decode(b).first
+      # Ensure we only have one vcard per request
+      # Section 5.1:
+      # Address object resources contained in address book collections MUST
+      # contain a single vCard component only.
+      vcard_array = Vpim::Vcard.decode(b)
+      raise BadRequest if vcard_array.size != 1
+      vcf = vcard_array.first
 
       # Pull out all the fields we specify ourselves.
       contents = vcf.fields.select {|f| !(%w(BEGIN VERSION UID END).include? f.name) }
