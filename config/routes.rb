@@ -17,33 +17,35 @@ Meishi::Application.routes.draw do
   ## END MacOSX 10.6 hacks 
 
   # TODO: Refactor these…
-  match '/carddav/', :to => DAV4Rack::Handler.new(
-    :root => '/carddav',
-    :root_uri_path => '/carddav',
-    :resource_class => Carddav::PrincipalResource,
-    :controller_class => Carddav::BaseController
-  ), :constraints => ForceHTTPAuthConstraint
+  constraints(ForceHTTPAuthConstraint) do
+    match '/carddav/', :to => DAV4Rack::Handler.new(
+      :root => '/carddav',
+      :root_uri_path => '/carddav',
+      :resource_class => Carddav::PrincipalResource,
+      :controller_class => Carddav::BaseController
+    )
 
-  match '/book/:book_id/:card_id', :to => DAV4Rack::Handler.new(
-    :root => '/book',
-    :root_uri_path => '/book',
-    :resource_class => Carddav::ContactResource,
-    :controller_class => Carddav::BaseController
-  ), :constraints => ForceHTTPAuthConstraint
+    match '/book/:book_id/:card_id', :to => DAV4Rack::Handler.new(
+      :root => '/book',
+      :root_uri_path => '/book',
+      :resource_class => Carddav::ContactResource,
+      :controller_class => Carddav::BaseController
+    )
 
-  match '/book/:book_id', :to => DAV4Rack::Handler.new(
-    :root => '/book',
-    :root_uri_path => '/book',
-    :resource_class => Carddav::AddressBookResource,
-    :controller_class => Carddav::AddressBookController
-  ), :constraints => ForceHTTPAuthConstraint
+    match '/book/:book_id', :to => DAV4Rack::Handler.new(
+      :root => '/book',
+      :root_uri_path => '/book',
+      :resource_class => Carddav::AddressBookResource,
+      :controller_class => Carddav::AddressBookController
+    )
 
-  match '/book/', :to => DAV4Rack::Handler.new(
-    :root => '/book',
-    :root_uri_path => '/book',
-    :resource_class => Carddav::AddressBookCollectionResource,
-    :controller_class => Carddav::BaseController
-  ), :constraints => ForceHTTPAuthConstraint
+    match '/book/', :to => DAV4Rack::Handler.new(
+      :root => '/book',
+      :root_uri_path => '/book',
+      :resource_class => Carddav::AddressBookCollectionResource,
+      :controller_class => Carddav::BaseController
+    )
+  end
 
   root :to => 'control_panel#index'
 end
