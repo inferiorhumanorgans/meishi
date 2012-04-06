@@ -17,8 +17,7 @@ module Carddav
     }
 
     def exist?
-      ret = false
-      ret = true if path == ""
+      ret = (path == '')
       STDERR.puts "*** Principal::exist?(#{path}) = #{ret}"
       return ret
     end
