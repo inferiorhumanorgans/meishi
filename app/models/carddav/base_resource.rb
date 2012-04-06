@@ -104,6 +104,7 @@ module Carddav
           <D:principal>
             <D:href>/carddav/</D:href>
           </D:principal>
+          <D:protected/>
           <D:grant>
           %s
           </D:grant>
