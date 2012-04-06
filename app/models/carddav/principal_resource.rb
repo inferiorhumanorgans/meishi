@@ -79,8 +79,12 @@ module Carddav
     end
 
     def last_modified
-      contact_ids = AddressBook.find_all_by_user_id(current_user.id).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
-      Field.first(:order => 'updated_at DESC', :conditions => ['contact_id IN (?)', contact_ids]).updated_at
+      address_books = AddressBook.find_all_by_user_id(current_user.id)
+      contact_ids = address_books.collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
+      field = Field.first(:order => 'updated_at DESC', :conditions => ['contact_id IN (?)', contact_ids])
+      return field.updated_at unless field.nil?
+      return address_books.first.updated_at unless address_books.nil?
+      Time.now
     end
 
     # For legibility let's underscore it and let the supeclass call it
