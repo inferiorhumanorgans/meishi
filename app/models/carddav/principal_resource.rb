@@ -6,7 +6,6 @@ module Carddav
     EXPLICIT_PROPERTIES = { 
       'DAV:' => %w(
         alternate-URI-set
-        current-user-privilege-set
         group-membership
         group-membership-set
       ),
@@ -50,18 +49,6 @@ module Carddav
       # any of its constituent contacts?
       contact_ids = AddressBook.find_all_by_user_id(current_user.id).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
       Field.first(:order => 'created_at ASC', :conditions => ['contact_id IN (?)', contact_ids]).created_at
-    end
-
-    def current_user_privilege_set
-      privileges = %w(read read-acl read-current-user-privilege-set)
-      s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
-
-      privileges_aggregate = privileges.inject('') do |ret, priv|
-        ret << '<D:privilege><%s /></privilege>' % priv
-      end
-
-      s %= privileges_aggregate
-      return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
     def displayname

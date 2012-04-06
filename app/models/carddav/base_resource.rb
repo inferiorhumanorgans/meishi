@@ -7,8 +7,11 @@ module Carddav
     # need to be defined there
     BASE_PROPERTIES = {
       'DAV:' => %w(
+        acl
+        acl-restrictions
         creationdate
         current-user-principal
+        current-user-privilege-set
         displayname
         getcontentlength
         getcontenttype
@@ -22,7 +25,9 @@ module Carddav
       # Define this here as an empty array so it will fall through to dav4rack
       # and they'll return a NotImplemented instead of BadRequest
       'urn:ietf:params:xml:ns:carddav' => []
-      }
+    }
+
+    PRIVILEGES = %w(read read-acl read-current-user-privilege-set)
 
     # Make OSX's AddressBook.app happy :(
     def setup
@@ -88,12 +93,44 @@ module Carddav
     # Properties need to be protected so that dav4rack doesn't alias them away
     protected
 
+    # Let's implement the simplest policy possible... modifying the permissions
+    # via WebDAV is not supported (yet?).
+    # TODO: Articulate permissions here for all users as part of a proper admin implementation
+    # TODO: Offer up unique principal URIs on a per-user basis
+    def acl
+      s="
+      <D:acl xmlns:D='DAV:'>
+        <D:ace>
+          <D:principal>
+            <D:href>/carddav/</D:href>
+          </D:principal>
+          <D:grant>
+          %s
+          </D:grant>
+        </D:ace>
+      </D:acl>"
+      s %= get_privileges_aggregate
+      Nokogiri::XML::DocumentFragment.parse(s)      
+    end
+
+    def acl_restrictions
+      s="<D:acl-restrictions xmlns:D='DAV:'><D:grant-only/><D:no-invert/></D:acl-restrictions>"
+      Nokogiri::XML::DocumentFragment.parse(s)
+    end
+
     # This violates the spec that requires an HTTP or HTTPS URL.  Unfortunately,
     # Apple's AddressBook.app treats everything as a pathname.  Also, the model
     # shouldn't need to know about the URL scheme and such.
     def current_user_principal
       s="<D:current-user-principal xmlns:D='DAV:'><D:href>/carddav/</D:href></D:current-user-principal>"
       Nokogiri::XML::DocumentFragment.parse(s)
+    end
+
+    def current_user_privilege_set
+      s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
+
+      s %= get_privileges_aggregate
+      return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
     def group
@@ -119,6 +156,13 @@ module Carddav
         ret[key].uniq!
       end
       ret
+    end
+
+    private
+    def get_privileges_aggregate
+      privileges_aggregate = PRIVILEGES.inject('') do |ret, priv|
+        ret << '<D:privilege><%s /></privilege>' % priv
+      end
     end
 
   end
