@@ -1,12 +1,19 @@
 module Carddav
   class ContactResource < AddressBookBaseResource
-    ALL_CARD_PROPERTIES = BaseResource::merge_properties(BaseResource::BASE_PROPERTIES, {
+    ALL_PROPERTIES = {
       'urn:ietf:params:xml:ns:carddav' => %w(address-data)
-    })
-    EXPLICIT_CARD_PROPERTIES = {}
+    }
+
+    EXPLICIT_PROPERTIES = {}
 
     def collection?
       false
+    end
+
+    def exist?
+      Rails.logger.error "ContactR::exist?(#{public_path});"
+      return true if Contact.find_by_uid(File.split(public_path).last)
+      return false
     end
 
     def setup
@@ -91,53 +98,29 @@ module Carddav
       NoContent
     end
 
-    # Some properties shouldn't be included in an allprop request
-    # but it's nice to do some sanity checking so keeping a list is good
-    def property_names
-      ALL_CARD_PROPERTIES
+    # Properties in alphabetical order
+    protected
+
+    def address_data
+      s = '<C:address-data xmlns:C="urn:ietf:params:xml:ns:carddav"><![CDATA[%s]]></C:address-data>' % @contact.vcard.to_s
+      return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
     def creation_date
       @contact.created_at
     end
 
-    def last_modified
-      @contact.updated_at
-    end
-    
-    def get_property(element)
-      name = element[:name]
-      namespace = element[:ns_href]
-
-      our_properties = (BaseResource::merge_properties(ALL_CARD_PROPERTIES, EXPLICIT_CARD_PROPERTIES))
-      
-      unless our_properties.include? namespace
-        raise BadRequest
-      end
-
-      unless our_properties[namespace].include? name
-        raise NotFound
-      end
-
-      case name
-      when 'getetag'
-        return @contact.etag
-      when 'address-data'
-        s = '<C:address-data xmlns:C="urn:ietf:params:xml:ns:carddav"><![CDATA[%s]]></C:address-data>' % @contact.vcard.to_s
-        return Nokogiri::XML::DocumentFragment.parse(s)
-      end
-
-      return super(element)
-    end
-
     def content_type
       Mime::Type.lookup_by_extension(:vcf).to_s
     end
 
-    def exist?
-      Rails.logger.error "ContactR::exist?(#{public_path});"
-      return true if Contact.find_by_uid(File.split(public_path).last)
-      return false
+    def etag
+      @contact.etag
     end
+
+    def last_modified
+      @contact.updated_at
+    end
+
   end
 end

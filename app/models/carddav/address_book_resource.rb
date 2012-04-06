@@ -5,7 +5,7 @@ module Carddav
     # allprop request.  It's nice to keep a list of all the properties we support
     # in the first place, so let's keep a separate list of the ones that need to
     # be explicitly requested.
-    ALL_BOOK_PROPERTIES =  BaseResource::merge_properties(BaseResource::BASE_PROPERTIES, {
+    ALL_PROPERTIES =  {
       'DAV:' => %w(
         current-user-privilege-set
         supported-report-set
@@ -15,9 +15,9 @@ module Carddav
         supported-address-data
       ),
       'http://calendarserver.org/ns/' => %w( getctag )
-    })
+    }
 
-    EXPLICIT_BOOK_PROPERTIES = {
+    EXPLICIT_PROPERTIES = {
       'urn:ietf:params:xml:ns:carddav' => %w(
         addressbook-description
         max-resource-size
@@ -48,36 +48,8 @@ module Carddav
       end
     end
     
-    # Some properties shouldn't be included in an allprop request
-    # but it's nice to do some sanity checking so keeping a list is good
-    def property_names
-      ALL_BOOK_PROPERTIES
-    end
-
-    def get_property(element)
-      Rails.logger.error "AddressBook::get_book_property(#{element})"
-      
-      name = element[:name]
-      namespace = element[:ns_href]
-
-      our_properties = (BaseResource::merge_properties(ALL_BOOK_PROPERTIES,EXPLICIT_BOOK_PROPERTIES))
-
-      unless our_properties.include? namespace
-        raise BadRequest
-      end
-
-      unless our_properties[namespace].include? name
-        raise NotFound
-      end
-
-      # dav4rack aliases everything by default, so...
-      fn = '_DAV_' + name.underscore
-      return self.send(fn.to_sym) if self.respond_to? fn
-      
-      super(element)
-    end
-
     ## Properties follow in alphabetical order
+    protected
 
     def addressbook_description
       @address_book.name

@@ -1,7 +1,7 @@
 module Carddav
   class PrincipalResource < BaseResource
 
-    ALL_PROPERTIES =  BaseResource::BASE_PROPERTIES
+    ALL_PROPERTIES =  {}
 
     EXPLICIT_PROPERTIES = { 
       'DAV:' => %w(
@@ -31,32 +31,8 @@ module Carddav
       []
     end
 
-    def get_property(element)
-      Rails.logger.error "Principal::get_property(#{element[:namespace]}:#{element[:name]})"
-
-      name = element[:name]
-      namespace = element[:ns_href]
-
-      our_properties = (BaseResource::merge_properties(ALL_PROPERTIES, EXPLICIT_PROPERTIES))
-      
-      unless our_properties.include? namespace
-        raise BadRequest
-      end
-
-      unless our_properties[namespace].include?(name)
-        raise NotFound
-      end
-
-      # dav4rack aliases everything by default... but only in the current class
-      fn = '_DAV_' + name.underscore
-
-      return self.send(fn.to_sym) if self.respond_to? fn
-      return self.send(name.underscore.to_sym) if self.respond_to? name.underscore
-
-      super(element)
-    end
-
     ## Properties follow in alphabetical order
+    protected
 
     # We should muck about in the routes and figure out the proper path
     def addressbook_home_set
