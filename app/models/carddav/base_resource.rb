@@ -9,6 +9,7 @@ module Carddav
         getcontenttype
         getetag
         getlastmodified
+        owner
         principal-URL
         resourcetype
       )}
@@ -42,6 +43,11 @@ module Carddav
     # know about the URL scheme and such.
     def current_user_principal
       s="<D:current-user-principal xmlns:D='DAV:'><D:href>/carddav/</D:href></D:current-user-principal>"
+      Nokogiri::XML::DocumentFragment.parse(s)
+    end
+
+    def owner
+      s="<D:owner xmlns:D='DAV:'><D:href>/carddav/</D:href></D:owner>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
