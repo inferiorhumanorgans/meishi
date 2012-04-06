@@ -86,8 +86,8 @@ Because calendaring is not a goal, RFCs [4324](http://tools.ietf.org/html/rfc432
   - No, n/a.
 * WebDAV extended MKCOL ([RFC 5689](http://tools.ietf.org/html/rfc5689))
   - Not yet implemented.  Currently users and address books are provisioned with the web based interface.
-* vCard 3.0 ([RFC 6352](http://tools.ietf.org/html/rfc6352))
-  - Yes.  Meishi uses the [Vcard gem](http://rubygems.org/gems/vcard) which is merely [Vpim](http://rubygems.org/gems/vpim) updated for Ruby 1.9 compatibility.
+* CardDAV ([RFC 6352](http://tools.ietf.org/html/rfc6352))
+  - Some.  Working on it.
 
 ## TODO
 
