@@ -63,8 +63,8 @@ Because calendaring is not a goal, RFCs 4324, 4791 and 5546 aren't (and won't be
   configure their HTTP server to handle TLS connections and thus make basic authentication 
   reasonably secure.
 * WebDAV (RFC 2518)
-  - As Meishi uses dav4rack, it is mostly WebDAV compliant.  Cadaver currently does not work for browsing because of how
-  its XML requests are structured.
+  - As Meishi uses dav4rack, it is mostly WebDAV compliant.  As of 39cfc0088a, dav4rack will pass all but two of the tests
+  in the WebDAV Litmus suite.  Better handling for namespace edge cases is needed in both Meishi and dav4rack.
 * WebDAV Versioning Extensions (RFC 3253)
   - There is partial support.  There's no intent of having Meishi present versioned contacts, but as CardDAV requires
   support for the DAV:supported-report-set property, that's been implemented.
@@ -72,15 +72,18 @@ Because calendaring is not a goal, RFCs 4324, 4791 and 5546 aren't (and won't be
   - Much of RFC 3744 is implemented, work needs to be done to ensure that generic ACL properties are available on 
   non-principal resources.
 * Apple Calendar Access Protocol (RFC 4324)
+  - No, n/a.
 * WebDAV Mounting (RFC 4709)
   - I haven't evaluated how I'd want to integrate this support.  As most CardDAV clients are likely to make the assumption
   of the server speaking WeBDAV, I don't see this as a high priority (or very useful).
 * CalDAV (RFC 4791)
+  - No, n/a.
 * WebDAV, 2007 revision (RFC 4918)
   - Unsure as I've not looked at the differences between this and RFC 2518
 * WebDAV Current Principal (RFC 5397)
   - Yes.
-* iCal/iTIP (RFC 5546)
+* iCal/iTIP (RFC 5546
+  - No, n/a.
 * WebDAV extended MKCOL (RFC5689)
   - Not yet implemented.  Currently users and address books are provisioned with the web based interface.
 * vCard 3.0 (RFC 6352)
