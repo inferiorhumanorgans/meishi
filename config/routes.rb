@@ -12,20 +12,9 @@ Meishi::Application.routes.draw do
   get '/book/:address_book_id/:id(.:format)' => 'contacts#show', :defaults => {:format => :vcf}
 
   ## BEGIN MacOSX 10.6 hacks
-  match '/', :to => DAV4Rack::Handler.new(
-    :root => '/',
-    :root_uri_path => '/',
-    :resource_class => Carddav::PrincipalResource,
-    :controller_class => Carddav::BaseController
-  ), :constraints => lambda {|r| r.env["force_http_auth"] = true; r.env["warden"].authenticate!}, :via => [:propfind]
-
-  match '/principals/carddav', :to => DAV4Rack::Handler.new(
-    :root => '/principals/carddav',
-    :root_uri_path => '/principals/carddav',
-    :resource_class => Carddav::PrincipalResource,
-    :controller_class => Carddav::BaseController
-  ), :constraints => lambda {|r| r.env["force_http_auth"] = true; r.env["warden"].authenticate!}, :via => [:propfind]
-  ## END MacOSX 10.6 hacks
+  match '/' => redirect('/carddav/'), :via => [:propfind]
+  match '/principals/carddav' => redirect('/carddav/'), :via => [:propfind]
+  ## END MacOSX 10.6 hacks 
 
   # TODO: Refactor these…
   match '/carddav/', :to => DAV4Rack::Handler.new(
