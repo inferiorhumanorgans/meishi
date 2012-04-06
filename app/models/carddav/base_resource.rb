@@ -2,15 +2,15 @@ module Carddav
   class BaseResource < DAV4Rack::Resource
     BASE_PROPERTIES = {
       'DAV:' => %w(
-        current-user-principal
-        principal-URL
         creationdate
+        current-user-principal
         displayname
-        getlastmodified
-        getetag
-        resourcetype
-        getcontenttype
         getcontentlength
+        getcontenttype
+        getetag
+        getlastmodified
+        principal-URL
+        resourcetype
       )}
 
     # Make OSX's AddressBook.app happy :(
@@ -34,17 +34,19 @@ module Carddav
       ary.push(@public_path[0..-2]) if @public_path[-1] == '/'
       ary.include? other_path
     end
-
-    def principal_url
-      s="<D:principal-URL xmlns:D='DAV:'><D:href>/carddav/</D:href></D:principal-URL>"
-      Nokogiri::XML::DocumentFragment.parse(s)
-    end
+    
+    # Properties in alphabetical order
 
     # This violates the spec that requires an HTTP or HTTPS URL.  Unfortunately, Apple's
     # AddressBook.app treats everything as a pathname.  Also, the model shouldn't need to
     # know about the URL scheme and such.
     def current_user_principal
       s="<D:current-user-principal xmlns:D='DAV:'><D:href>/carddav/</D:href></D:current-user-principal>"
+      Nokogiri::XML::DocumentFragment.parse(s)
+    end
+
+    def principal_url
+      s="<D:principal-URL xmlns:D='DAV:'><D:href>/carddav/</D:href></D:principal-URL>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
