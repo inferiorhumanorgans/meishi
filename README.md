@@ -50,11 +50,11 @@ Meishi aims to be fully standards compliant CardDAV contacts server.  That means
 
 ### Current status of compliance
 
-Because calendaring is not a goal, RFCs 4324, 4791 and 5546 aren't (and won't be) on my radar.  Wikipedia breaks down the server compliance into the following categories:
+Because calendaring is not a goal, RFCs [4324](http://tools.ietf.org/html/rfc4324), [4791](http://tools.ietf.org/html/rfc4791) and [5546](http://tools.ietf.org/html/rfc5546) aren't (and won't be) on my radar.  Wikipedia breaks down the server compliance into the following categories:
 
-* HTTP/1.1 (RFC 2616)
+* HTTP/1.1 ([RFC 2616](http://tools.ietf.org/html/rfc2616))
   - Because Meishi is using Rack+Rails+dav4rack the assumption is that it is HTTP/1.1 compliant.
-* HTTP Authentication (RFC 2617)
+* HTTP Authentication ([RFC 2617](http://tools.ietf.org/html/rfc2617))
   - Meishi supports 'basic' HTTP authentication.  Because Meishi does not store passwords in plaintext, 'digest'
   authentication has not been enabled.  As digest authentication with password hashes presents similar problems to storing 
   plaintext passwords, digest authentication will not be supported.  Additionally support for any other authentication 
@@ -62,31 +62,31 @@ Because calendaring is not a goal, RFCs 4324, 4791 and 5546 aren't (and won't be
   currently implemented.  As rack is designed to be used behind an external HTTP server, the expectation is that users will 
   configure their HTTP server to handle TLS connections and thus make basic authentication 
   reasonably secure.
-* WebDAV (RFC 2518)
+* WebDAV ([RFC 2518](http://tools.ietf.org/html/rfc2518))
   - As Meishi uses dav4rack, it is mostly WebDAV compliant.  As of 39cfc0088a, dav4rack will pass all but two of the tests
   in the WebDAV Litmus suite.  Better handling for namespace edge cases is needed in both Meishi and dav4rack.
-* WebDAV Versioning Extensions (RFC 3253)
+* WebDAV Versioning Extensions ([RFC 3253](http://tools.ietf.org/html/rfc3253))
   - There is partial support.  There's no intent of having Meishi present versioned contacts, but as CardDAV requires
   support for the DAV:supported-report-set property, that's been implemented.
-* WebDAV Access Control (RFC 3744)
+* WebDAV Access Control ([RFC 3744](http://tools.ietf.org/html/rfc3744))
   - Much of RFC 3744 is implemented, work needs to be done to ensure that generic ACL properties are available on 
   non-principal resources.
-* Apple Calendar Access Protocol (RFC 4324)
+* Apple Calendar Access Protocol ([RFC 4324](http://tools.ietf.org/html/rfc4324))
   - No, n/a.
-* WebDAV Mounting (RFC 4709)
+* WebDAV Mounting ([RFC 4709](http://tools.ietf.org/html/rfc4709))
   - I haven't evaluated how I'd want to integrate this support.  As most CardDAV clients are likely to make the assumption
   of the server speaking WeBDAV, I don't see this as a high priority (or very useful).
-* CalDAV (RFC 4791)
+* CalDAV ([RFC 4791](http://tools.ietf.org/html/rfc4791))
   - No, n/a.
-* WebDAV, 2007 revision (RFC 4918)
+* WebDAV, 2007 revision ([RFC 4918](http://tools.ietf.org/html/rfc4918))
   - Unsure as I've not looked at the differences between this and RFC 2518
-* WebDAV Current Principal (RFC 5397)
+* WebDAV Current Principal ([RFC 5397](http://tools.ietf.org/html/rfc5397))
   - Yes.
-* iCal/iTIP (RFC 5546
+* iCal/iTIP ([RFC 5546](http://tools.ietf.org/html/rfc5546))
   - No, n/a.
-* WebDAV extended MKCOL (RFC5689)
+* WebDAV extended MKCOL ([RFC 5689](http://tools.ietf.org/html/rfc5689))
   - Not yet implemented.  Currently users and address books are provisioned with the web based interface.
-* vCard 3.0 (RFC 6352)
+* vCard 3.0 ([RFC 6352](http://tools.ietf.org/html/rfc6352))
   - Yes.  Meishi uses the Vcard gem which is merely Vpim updated for Ruby 1.9 compatibility.
 
 ## TODO
