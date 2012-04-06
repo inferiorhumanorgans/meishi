@@ -110,6 +110,10 @@ module Carddav
       @contact.created_at
     end
 
+    def content_length
+      @contact.to_s.size
+    end
+
     def content_type
       Mime::Type.lookup_by_extension(:vcf).to_s
     end
