@@ -47,6 +47,14 @@ module Carddav
 
       Rails.logger.error "REPORT XML REQUEST:\n#{request_document.to_xml}"
       Rails.logger.error "REPORT DEPTH IS: #{depth.inspect}"
+
+      if request_document.nil? or request_document.root.nil?
+        render_xml(:error) do |xml|
+          xml.send :'empty-request'
+        end
+        return BadRequest
+      end
+
       case request_document.root.name
       when 'addressbook-multiget'
         addressbook_multiget
