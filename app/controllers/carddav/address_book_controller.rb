@@ -79,7 +79,7 @@ module Carddav
       end
 
       props = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('prop')}").children.find_all{|n| n.element?}.map{|n|
-        {:name => n.name, :namespace => n.namespace.prefix, :ns_href => n.namespace.href}
+        to_element_hash(n)
       }
       # Handle the address-data element
       # - Check for child properties (vCard fields)
