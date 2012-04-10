@@ -77,7 +77,13 @@ module Carddav
       if our_properties[namespace].include?(name)
         # The base dav4rack handler will use nicer looking function names for some properties
         # Let's just humor it.
-        return self.send(fn.to_sym) if self.respond_to?(fn)
+        if self.respond_to?(fn)
+          if element[:children]
+            return self.send(fn.to_sym, element[:children])
+          else
+            return self.send(fn.to_sym)
+          end
+        end
       end
 
       super(element)
