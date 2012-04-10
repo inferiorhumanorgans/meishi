@@ -48,21 +48,20 @@ module Carddav
       Rails.logger.error "REPORT XML REQUEST:\n#{request_document.to_xml}"
       Rails.logger.error "REPORT DEPTH IS: #{depth.inspect}"
 
+
       if request_document.nil? or request_document.root.nil?
-        render_xml(:error) do |xml|
-          xml.send :'empty-request'
+        xml_error(BadRequest) do |err|
+          err.send :'empty-request'
         end
-        return BadRequest
       end
 
       case request_document.root.name
       when 'addressbook-multiget'
         addressbook_multiget
       else
-        render_xml(:error) do |xml|
-          xml.send :'supported-report'
+        xml_error do |err|
+          err.send :'supported-report'
         end
-        Forbidden
       end
 
     end
@@ -71,15 +70,33 @@ module Carddav
     def addressbook_multiget
       Rails.logger.error "REPORT addressbook-multiget"
 
+      # TODO: Include a DAV:error response
+      # CardDAV §8.7 clearly states Depth must equalzero for this report
+      unless depth == 0
+        xml_error(BadRequest) do |err|
+          err.send :'invalid-depth'
+        end
+      end
+
       props = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('prop')}").children.find_all{|n| n.element?}.map{|n|
         {:name => n.name, :namespace => n.namespace.prefix, :ns_href => n.namespace.href}
       }
+      # Handle the address-data element
+      # - Check for child properties (vCard fields)
+      # - Check for mime-type and version.  If present they must match vCard 3.0 for now since we don't support anything else.
       hrefs = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('href')}").collect{|n| 
         text = n.text
+        # TODO: Make sure that the hrefs passed into the report are either paths or fully qualified URLs with the right host+protocol+port prefix
         path = URI.parse(text).path
         Rails.logger.error "Scanned this HREF: #{text} PATH: #{path}"
         text
       }.compact
+      
+      if hrefs.empty?
+        xml_error(BadRequest) do |err|
+          err.send :'href-missing'
+        end
+      end
 
       multistatus do |xml|
         hrefs.each do |_href|
@@ -91,11 +108,14 @@ module Carddav
 
             # TODO: Write a test to cover asking for a report expecting contact objects but given an address book path
             # Yes, CardDAVMate does this.
-            if resource.is_self? _href
-              propstats(xml, get_properties(resource, props))
+            cur_resource = resource.is_self?(_href) ? resource : resource.child(File.split(path).last)
+            
+            if cur_resource.exist?
+              propstats(xml, get_properties(cur_resource, props))
             else
-              propstats(xml, get_properties(resource.child(File.split(path).last), props))
+              xml.status "#{http_version} #{NotFound.status_line}"
             end
+
           end
         end
       end
