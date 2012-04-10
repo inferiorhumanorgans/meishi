@@ -101,8 +101,27 @@ module Carddav
     # Properties in alphabetical order
     protected
 
-    def address_data
-      s = '<C:address-data xmlns:C="urn:ietf:params:xml:ns:carddav"><![CDATA[%s]]></C:address-data>' % @contact.vcard.to_s
+    def address_data(fields=[])
+      if fields.empty?
+        data = @contact.vcard.to_s
+      else
+        data = %w(BEGIN:VCARD)
+        fields.each do |f|
+          next if f[:name] != 'prop'
+          name = f[:attributes]['name']
+          case name.upcase
+          when 'VERSION'
+            data << 'VERSION:3.0'
+          when 'UID'
+            data << 'UID:%s' % @contact.uid
+          else
+            data << @contact.vcard.field(name)
+          end
+        end
+        data << 'END:VCARD'
+        data = data.compact.join("\n")
+      end
+      s = '<C:address-data xmlns:C="urn:ietf:params:xml:ns:carddav"><![CDATA[%s]]></C:address-data>' % data
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
