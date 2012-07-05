@@ -78,10 +78,10 @@ module Carddav
         # The base dav4rack handler will use nicer looking function names for some properties
         # Let's just humor it.
         if self.respond_to?(fn)
-          if element[:children]
-            return self.send(fn.to_sym, element[:children])
-          else
+          if element[:children].empty? and element[:attributes].empty?
             return self.send(fn.to_sym)
+          else
+            return self.send(fn.to_sym, element[:attributes], element[:children])
           end
         end
       end

@@ -101,7 +101,7 @@ module Carddav
     # Properties in alphabetical order
     protected
 
-    def address_data(fields=[])
+    def address_data(attributes={}, fields=[])
       if fields.empty?
         data = @contact.vcard.to_s
       else
@@ -115,7 +115,8 @@ module Carddav
           when 'UID'
             data << 'UID:%s' % @contact.uid
           else
-            data << @contact.vcard.field(name)
+            field = @contact.vcard.field(name)
+            data << field.to_s.strip unless field.nil?
           end
         end
         data << 'END:VCARD'
