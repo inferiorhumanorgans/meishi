@@ -71,8 +71,9 @@ module Carddav
       Rails.logger.error "REPORT addressbook-multiget"
 
       # TODO: Include a DAV:error response
-      # CardDAV §8.7 clearly states Depth must equalzero for this report
-      unless depth == 0
+      # CardDAV §8.7 clearly states Depth must equal zero for this report
+      # But Apple's AddressBook.app sets the depth to infinity anyhow.
+      unless depth == 0 or depth == :infinity
         xml_error(BadRequest) do |err|
           err.send :'invalid-depth'
         end
