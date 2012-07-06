@@ -21,6 +21,10 @@ group :test, :development do
   gem 'machinist', '>= 2.0.0.beta2'
 end
 
+group :development do
+  gem 'quiet_assets'
+end
+
 group :test do
   gem 'simplecov', :require => false
 end
