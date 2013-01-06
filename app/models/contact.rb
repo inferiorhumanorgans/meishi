@@ -26,7 +26,7 @@ class Contact < ActiveRecord::Base
   end
   
   def vcard
-    @vcard ||= Vpim::Vcard.decode(vcard_raw).first
+    @vcard ||= Vcard::Vcard.decode(vcard_raw).first
   end
 
   # This relies on FN existing, which it *SHOULD*
