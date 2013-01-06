@@ -36,7 +36,7 @@ module Carddav
       # Section 5.1:
       # Address object resources contained in address book collections MUST
       # contain a single vCard component only.
-      vcard_array = Vpim::Vcard.decode(b)
+      vcard_array = Vcard::Vcard.decode(b)
       raise BadRequest if vcard_array.size != 1
       vcf = vcard_array.first
 
