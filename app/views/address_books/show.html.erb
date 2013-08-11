@@ -1,16 +1,28 @@
-<div class="whole">
-<h2><%= @address_book.name -%></h2>
+<% content_for :extra_navbar do %>
+  <li><%= link_to 'Create a contact', new_address_book_contact_url(@address_book) -%></li>
+  <li><%= link_to 'Edit address book', edit_address_book_url(@address_book) -%></li>
+<% end %>
 
-<% unless @contacts.empty? -%>
-<ul>
-  <% @contacts.each do |contact| -%>
-  <li><span style="display: inline-block; width: 3em">#<%= contact.id -%></span><%= link_to contact.quick_name, address_book_contact_url(@address_book, contact) -%></li>
+<div class="container">
+
+  <ul class="breadcrumb">
+    <li><%= link_to('Your Address Books', address_books_url) -%> <span class="divider">/</span></li>
+    <li class="active"><%= @address_book.name -%></li>
+  </ul>
+
+  <legend><h2><%= @address_book.name -%></h2></legend>
+
+  <% unless @contacts.empty? -%>
+  <table class="table table-bordered table-striped">
+    <% @contacts.each do |contact| -%>
+    <tr>
+      <td>#<%= contact.id -%></td>
+      <td><%= link_to contact.quick_name, address_book_contact_url(@address_book, contact) -%></td>
+    </tr>
+    <% end -%>
+  </table>
+
+  <% else -%>
+  This address book is empty. Begin by <%= link_to 'creating a contact', new_address_book_contact_url(@address_book) %>.
   <% end -%>
-</ul>
-<%= link_to 'Create a contact', new_address_book_contact_url(@address_book) -%>.
-<%= link_to 'Edit address book', edit_address_book_url(@address_book) -%>.
-<%= link_to 'Back to address book list', root_url -%>.
-<% else -%>
-This address book is empty. Begin by <%= link_to 'creating a contact', new_address_book_contact_url(@address_book) %>.
-<% end -%>
 </div>

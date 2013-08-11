@@ -1,12 +1,17 @@
-<table style="width: 100%; max-width: 100%; border: 1px solid black">
-  <tr>
-    <th>Field</th>
-    <th colspan="2">Value</th>
-  </tr>
-<%= f.fields_for :fields do |builder| %>
-  <%= render "field_fields", :f => builder %>
-<% end -%>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= f.fields_for :fields do |builder| %>
+      <%= render "field_fields", :f => builder %>
+    <% end -%>
+  </tbody>
 </table>
+
 <div>
   <p>
     <%= link_to_add_fields "Add Field", f, :fields %>

@@ -1,0 +1,33 @@
+<div class="container">
+  <div class="navbar navbar-inversxe">
+    <div class="navbar-inner">
+      <%= link_to 'Meishi', '#', :class => 'active brand' -%>
+
+      <ul class="nav">
+        <%= navlink_toplevel('<i class="icon-home icon-white"></i> Home'.html_safe, /control_panel/, root_url) -%>
+
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-book icon-white"></i> Address Books <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><%= link_to 'All address books', address_books_url -%></li>
+            <li><%= link_to 'New address book', new_address_book_url -%></li>
+          </ul>
+        </li>
+
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog icon-white"></i> Account <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><%= link_to 'Edit account info', edit_user_registration_url -%></li>
+            <li><%= link_to 'Log out', destroy_user_session_url -%></li>
+          </ul>
+        </li>
+
+      </ul>
+      <% if content_for? :extra_navbar %>
+        <ul class="nav"style="clear: both;">
+          <%= content_for :extra_navbar %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+</div>

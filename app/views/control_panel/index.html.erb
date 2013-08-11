@@ -1,17 +1,12 @@
-<div class="whole">
-<h2>Welcome, <%= current_user.username -%>.</h2>
+<div class="container">
+  <ul class="breadcrumb" style="visibility: hidden">
+    <li>...</li>
+  </ul>
 
-<% unless @address_books.empty? -%>
-<h3>Your address books:</h3>
-<ul>
-  <% @address_books.each do |book| -%>
-  <li><%= link_to book.name, address_book_url(book) -%></li>
-  <% end -%>
-</ul>
-<% else -%>
-<p>You have not created any address books yet, <%= link_to 'create one', new_address_book_url -%> to get started.</p>
-<% end -%>
+  <h2>Welcome, <%= current_user.username -%>.</h2>
 
+  <% if @address_books.empty? -%>
+    <p>You have not created any address books yet, <%= link_to 'create one', new_address_book_url -%> to get started.</p>
+  <% end %>
 
-<%= link_to 'Log out', destroy_user_session_url -%>. <%= link_to 'Edit your account info', edit_user_registration_url -%>. <%= link_to 'Create address book', new_address_book_url -%>.
 </div>

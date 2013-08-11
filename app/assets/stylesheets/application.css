@@ -8,56 +8,50 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
+ *= require bootstrap_and_overrides
  *= require_self
  *= require_tree .
 */
-    BODY {
-      font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
-      font-weight: 300;
-      font-size: 12pt;
-    }
-    A {
-      text-decoration: none;
-      -webkit-transition: color 0.5s ease-in-out;
-      -moz-transition: color 0.5s ease-in-out;
-      color: navy;
-    }
-    A:hover {
-      color: blue;
-    }
-    H2,H3 {
-      font-weight: 500;
-    }
-    DIV.page {
-      background: none repeat scroll 0 0 #F0F0F0;
-      height: 100%;
-      left: 0;
-      overflow: hidden;
-      position: absolute;
-      top: 0;
-      width: 100%;
-      z-index: 30;
-    }
-    DIV.window {
-      border: 1px solid black;
-      padding: 0.5em;
-      width: 33%;
-      margin-left: auto;
-      margin-right: auto;
-      margin-top: 8%;
-      background-color: #FAFAFA;
-    }
-    DIV.window > H2 {
-      text-align: center;
-      width: 100%;
-      font-weight: normal;
-      font-variant: small-caps;
-    }
-    DIV.window DIV.form_element {
-      margin-bottom: 0.75em;
-    }
-    DIV.whole {
-      margin: 1em;
-      max-height: 100%;
-      overflow-y: scroll;
-    }
+
+body {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #f5f5f5;
+}
+
+body * {
+  font-family: Helvetica Neue;
+  font-weight: 300;
+}
+
+.form-signin {
+  max-width: 40%;
+  width: 40%;
+  padding: 19px 29px 29px;
+  margin: 0 auto 20px;
+  background-color: #fff;
+  border: 1px solid #e5e5e5;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin input[type="text"],
+.form-signin input[type="password"] {
+  font-size: 16px;
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+}
+
+ul.breadcrumb {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}

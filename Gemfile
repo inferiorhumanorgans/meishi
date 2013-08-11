@@ -40,5 +40,7 @@ gem 'rails_warden'
 gem 'devise'
 gem 'dav4rack', :git => 'https://github.com/inferiorhumanorgans/dav4rack.git'
 
+gem "twitter-bootstrap-rails"
+
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'

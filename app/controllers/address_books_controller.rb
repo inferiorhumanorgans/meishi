@@ -2,6 +2,10 @@ class AddressBooksController < ApplicationController
   before_filter :check_permissions
   before_filter :require_address_book_object, :only => [:edit, :show]
 
+  def index
+    @address_books = AddressBook.find_all_by_user_id(current_user)
+  end
+
   def new
     @address_book = AddressBook.new
     @address_book.user = current_user

@@ -1,12 +1,15 @@
-<h2>Forgot your password?</h2>
+<div class="container">
 
-<%= form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :method => :post }) do |f| %>
+<%= form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :class => 'form-signin', :method => :post }) do |f| %>
+  <h2 class="form-signin-heading">Forgot Your Password?</h2>
+
   <%= devise_error_messages! %>
 
-  <div><%= f.label :email %><br />
-  <%= f.email_field :email %></div>
+  <%= f.email_field :email, :class => 'input-block-level', :placeholder => 'E-Mail Address' %>
 
-  <div><%= f.submit "Send me reset password instructions" %></div>
+  <%= f.submit "Reset my password", :class => 'btn btn-large btn-primary' %>
+  <br clear="all">
+  <%= render "links" %>
 <% end %>
 
-<%= render "links" %>
+</div>

@@ -1,27 +1,38 @@
-<div class="window">
-<p>
-<span class="fullname"><%= @contact.vcard.name.fullname %></span><br/>
-<span class="company">Company</span><br/>
-</p>
-<table class="contact_fields">
-  <col />
-  <col />
-  <% @contact.vcard.telephones.each do |t| -%>
-  <tr>
-    <td><%= Contact.format_location(t) -%></td>
-    <td><%= t.to_s -%></td>
-  </tr>
-  <% end -%>
-  <% @contact.vcard.emails.each do |e| -%>
-  <tr>
-    <td><%= Contact.format_location(e)%></td>
-    <td><%= e.to_s -%></td>
-  </tr>
-  <% end -%>
-  <tr class="note">
-    <td>Note:</td>
-    <td>Note goes here</td>
-</table>
-<%= link_to 'Edit contact', edit_address_book_contact_url(@contact.address_book, @contact) -%>.
-<%= link_to 'Back to address book', address_book_url(@contact.address_book) -%>.
+<% content_for :extra_navbar do %>
+  <li>  <%= link_to 'Edit contact', edit_address_book_contact_url(@contact.address_book, @contact) -%></li>
+<% end %>
+
+<div class="container">
+
+  <ul class="breadcrumb">
+    <li><%= link_to('Your Address Books', address_books_url) -%> <span class="divider">/</span></li>
+    <li><%= link_to(@contact.address_book.name, address_book_url(@contact.address_book)) %> <span class="divider">/</span></li>
+    <li class="active"><%= @contact.vcard.name.fullname -%></li>
+  </ul>
+
+  <p>
+    <span class="fullname"><%= @contact.vcard.name.fullname %></span><br/>
+    <span class="company">Company</span><br/>
+  </p>
+
+  <table class="contact_fields">
+    <col />
+    <col />
+    <% @contact.vcard.telephones.each do |t| -%>
+    <tr>
+      <td><%= Contact.format_location(t) -%></td>
+      <td><%= t.to_s -%></td>
+    </tr>
+    <% end -%>
+    <% @contact.vcard.emails.each do |e| -%>
+    <tr>
+      <td><%= Contact.format_location(e)%></td>
+      <td><%= e.to_s -%></td>
+    </tr>
+    <% end -%>
+    <tr class="note">
+      <td>Note:</td>
+      <td>Note goes here</td>
+  </table>
+
 </div>

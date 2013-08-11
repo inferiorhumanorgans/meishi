@@ -1,5 +1,14 @@
-<tr class="fields">
-  <td><%= f.text_field :name, :placeholder => 'Field name' %></td>
-  <td><%= f.text_field :value, :placeholder => 'Value' %></td>
-  <td><%= link_to_remove_fields "x", f -%></td>
+<tr>
+  <td><%= f.text_field :name, :placeholder => 'Field name', :class => 'input' %></td>
+  <td>
+    <div class="control-group" style="margin-bottom: 0">
+      <div class="controls">
+        <div class="input-append">
+          <%= f.text_field :value, :placeholder => 'Value', :class => 'input' %>
+          <span><%= link_to_remove_fields "x", f -%></span>
+          <%= f.hidden_field :id %>
+        </div>
+      </div>
+    </div>
+  </td>
 </tr>

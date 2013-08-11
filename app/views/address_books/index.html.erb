@@ -1,0 +1,22 @@
+<div class="container">
+
+  <ul class="breadcrumb">
+    <li class="active">Your Address Books</li>
+  </ul>
+
+  <% unless @address_books.empty? -%>
+
+  <legend><h2>Your address books</h2></legend>
+
+  <table class="table table-bordered table-striped span9">
+    <% @address_books.each do |book| -%>
+    <tr>
+      <td><%= link_to book.name, address_book_url(book) -%></td>
+    </tr>
+    <% end -%>
+  </table>
+  <% else -%>
+  <p>You have not created any address books yet, <%= link_to 'create one', new_address_book_url -%> to get started.</p>
+  <% end -%>
+
+</div>
