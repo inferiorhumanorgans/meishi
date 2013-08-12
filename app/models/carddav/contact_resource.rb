@@ -101,16 +101,14 @@ module Carddav
     # Properties in alphabetical order
     protected
 
-    def address_data(attributes={}, fields=[])
-      unexpected_arguments(attributes, children)
-
-      if fields.empty?
+    prop :address_data, args: true do
+      if @children.empty?
         data = @contact.vcard.to_s
       else
         data = %w(BEGIN:VCARD)
-        fields.each do |f|
-          next if f[:name] != 'prop'
-          name = f[:attributes]['name']
+        @children.each do |child|
+          next if child[:name] != 'prop'
+          name = child[:attributes]['name']
           case name.upcase
           when 'VERSION'
             data << 'VERSION:3.0'
@@ -124,37 +122,28 @@ module Carddav
         data << 'END:VCARD'
         data = data.compact.join("\n")
       end
+
       s = '<C:address-data xmlns:C="urn:ietf:params:xml:ns:carddav"><![CDATA[%s]]></C:address-data>' % data
-      return Nokogiri::XML::DocumentFragment.parse(s)
+      Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def creation_date(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :creation_date do
       @contact.created_at
     end
 
-    def content_length(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :content_length do
       @contact.to_s.size
     end
 
-    def content_type(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :content_type do
       Mime::Type.lookup_by_extension(:vcf).to_s
     end
 
-    def etag(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :etag do
       @contact.etag
     end
 
-    def last_modified(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :last_modified do
       @contact.updated_at
     end
 

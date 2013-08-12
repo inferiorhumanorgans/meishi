@@ -33,7 +33,7 @@ module Carddav
 
     def exist?
       Rails.logger.error "ABR::exist?(#{public_path})"
-      return !@address_book.nil?
+      !@address_book.nil?
     end
 
     def collection?
@@ -51,28 +51,20 @@ module Carddav
     ## Properties follow in alphabetical order
     protected
 
-    def addressbook_description(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :addressbook_description do
       @address_book.name
     end
 
-    def content_type(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :content_type do
       # Not the right type, oh well
       Mime::Type.lookup_by_extension(:dir).to_s
     end
 
-    def creation_date(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :creation_date do
       @address_book.created_at
     end
 
-    def current_user_privilege_set(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :current_user_privilege_set do
       privileges = %w(read write write-properties write-content read-acl read-current-user-privilege-set)
       s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
 
@@ -81,64 +73,49 @@ module Carddav
       end
 
       s %= privileges_aggregate
-      return Nokogiri::XML::DocumentFragment.parse(s)
+
+      Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def displayname(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :displayname do
       @address_book.name
     end
 
-    def getctag(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :getctag do
       s="<APPLE1:getctag xmlns:APPLE1='http://calendarserver.org/ns/'>#{@address_book.updated_at.to_i}</APPLE1:getctag>"
-      return Nokogiri::XML::DocumentFragment.parse(s)
+      Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def getetag(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :getetag do
       '"None"'
     end
 
     # TODO: It would be more efficient to handle updating mtime with an after_update hook
-    def last_modified(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :last_modified do
       ([@address_book.updated_at]+@address_book.contacts.collect{|c| c.updated_at}).max
     end
 
     # Limit vCards to 1k for now.
     # TODO: Enforce max-resource-size
-    def max_resource_size(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :max_resource_size do
       1024
     end
 
     # For legibility let's underscore it and let the supeclass call it
-    def resource_type(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :resource_type do
       s='<resourcetype><D:collection /><C:addressbook xmlns:C="urn:ietf:params:xml:ns:carddav"/></resourcetype>'
-      return Nokogiri::XML::DocumentFragment.parse(s)
+      Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def supported_address_data(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :supported_address_data do
       s=
       "<C:supported-address-data xmlns:C='urn:ietf:params:xml:ns:carddav'>
         <C:address-data-type content-type='text/vcard' version='3.0' />
        </C:supported-address-data>"
-      return Nokogiri::XML::DocumentFragment.parse(s)
+      Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def supported_report_set(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :supported_report_set do
       reports = %w(addressbook-multiget addressbook-query)
       s = "<D:supported-report-set>%s</D:supported-report-set>"
       

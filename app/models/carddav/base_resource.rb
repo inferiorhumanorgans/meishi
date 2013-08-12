@@ -27,6 +27,29 @@ module Carddav
       'urn:ietf:params:xml:ns:carddav' => []
     }
 
+    # Define a convenience function for CalDAV properties.  This will define
+    # a function named after the first argument (a symbol) that populates three
+    # instance variables: @attributes, @children, and @attribute. Note that
+    # next should be used inside of blocks instead of return.
+    def self.prop(method, options={}, &b)
+      self.class_eval do
+        define_method(method) do |attributes={}, children=[]|
+          self.instance_variable_set(:@attributes, attributes)
+          self.instance_variable_set(:@children, children)
+          self.instance_variable_set(:@attribute, method)
+
+          unless options[:args] == true
+            unexpected_arguments(attributes, children)
+          end
+
+          self.instance_exec &b
+        end
+
+        # DAV4Rack will clobber public methods, so let's make sure these are all protected.
+        protected method
+      end
+    end
+
     PRIVILEGES = %w(read read-acl read-current-user-privilege-set)
 
     # Make OSX's AddressBook.app happy :(
@@ -104,9 +127,7 @@ module Carddav
     # via WebDAV is not supported (yet?).
     # TODO: Articulate permissions here for all users as part of a proper admin implementation
     # TODO: Offer up unique principal URIs on a per-user basis
-    def acl(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :acl do
       s="
       <D:acl xmlns:D='DAV:'>
         <D:ace>
@@ -123,9 +144,7 @@ module Carddav
       Nokogiri::XML::DocumentFragment.parse(s)      
     end
 
-    def acl_restrictions(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :acl_restrictions do
       s="<D:acl-restrictions xmlns:D='DAV:'><D:grant-only/><D:no-invert/></D:acl-restrictions>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
@@ -133,36 +152,27 @@ module Carddav
     # This violates the spec that requires an HTTP or HTTPS URL.  Unfortunately,
     # Apple's AddressBook.app treats everything as a pathname.  Also, the model
     # shouldn't need to know about the URL scheme and such.
-    def current_user_principal(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :current_user_principal do
       s="<D:current-user-principal xmlns:D='DAV:'><D:href>/carddav/</D:href></D:current-user-principal>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def current_user_privilege_set(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :current_user_privilege_set do
       s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
 
       s %= get_privileges_aggregate
-      return Nokogiri::XML::DocumentFragment.parse(s)
+      Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def group(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
+    prop :group do
     end
 
-    def owner(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :owner do
       s="<D:owner xmlns:D='DAV:'><D:href>/carddav/</D:href></D:owner>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def principal_url(attributes={}, children=[])
-      unexpected_arguments(attributes, children)
-
+    prop :principal_url do
       s="<D:principal-URL xmlns:D='DAV:'><D:href>/carddav/</D:href></D:principal-URL>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
@@ -183,7 +193,7 @@ module Carddav
     def unexpected_arguments(attributes, children)
       return if (attributes.nil? or attributes.empty?) and (children.nil? or children.empty?)
 
-      Rails.logger.error  "#{caller[0][/`([^']*)'/, 1]} did not expect arguments: #{attributes.inspect} / #{children.inspect}"
+      Rails.logger.error  "#{@attribute} request did not expect arguments: #{attributes.inspect} / #{children.inspect}"
     end
 
     private
