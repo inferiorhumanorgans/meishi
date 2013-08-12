@@ -13,7 +13,8 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
-Gemfile.lock
+
+# This is user generated as part of the config process
 config/initializers/00_first_initializer.rb
 
 # For simplecov
