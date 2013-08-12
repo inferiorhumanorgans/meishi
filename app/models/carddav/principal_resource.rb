@@ -33,17 +33,23 @@ module Carddav
     protected
 
     # We should muck about in the routes and figure out the proper path
-    def addressbook_home_set
+    def addressbook_home_set(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<C:addressbook-home-set xmlns:C='urn:ietf:params:xml:ns:carddav'><D:href xmlns:D='DAV:'>/book/</D:href></C:addressbook-home-set>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def alternate_uri_set
+    def alternate_uri_set(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<D:alternate-URI-set xmlns:D='DAV:' />"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def creation_date
+    def creation_date(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       # TODO: There's probably a more efficient way to grab the oldest ctime
       # Perhaps we should assume that the address book will never be newer than
       # any of its constituent contacts?
@@ -51,21 +57,29 @@ module Carddav
       Field.first(:order => 'created_at ASC', :conditions => ['contact_id IN (?)', contact_ids]).created_at
     end
 
-    def displayname
+    def displayname(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       "#{current_user.username}'s Principal Resource"
     end
 
-    def group_membership
+    def group_membership(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<D:group-membership xmlns:D='DAV:' />"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def group_membership_set
+    def group_membership_set(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<D:group-membership-set xmlns:D='DAV:' />"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def last_modified
+    def last_modified(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       address_books = AddressBook.find_all_by_user_id(current_user.id)
       contact_ids = address_books.collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
       field = Field.first(:order => 'updated_at DESC', :conditions => ['contact_id IN (?)', contact_ids])
@@ -75,7 +89,9 @@ module Carddav
     end
 
     # For legibility let's underscore it and let the supeclass call it
-    def resource_type
+    def resource_type(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s='<resourcetype><D:collection /><D:principal/></resourcetype>'
       return Nokogiri::XML::DocumentFragment.parse(s)
     end

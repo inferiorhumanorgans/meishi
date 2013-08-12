@@ -104,7 +104,9 @@ module Carddav
     # via WebDAV is not supported (yet?).
     # TODO: Articulate permissions here for all users as part of a proper admin implementation
     # TODO: Offer up unique principal URIs on a per-user basis
-    def acl
+    def acl(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="
       <D:acl xmlns:D='DAV:'>
         <D:ace>
@@ -121,7 +123,9 @@ module Carddav
       Nokogiri::XML::DocumentFragment.parse(s)      
     end
 
-    def acl_restrictions
+    def acl_restrictions(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<D:acl-restrictions xmlns:D='DAV:'><D:grant-only/><D:no-invert/></D:acl-restrictions>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
@@ -129,27 +133,36 @@ module Carddav
     # This violates the spec that requires an HTTP or HTTPS URL.  Unfortunately,
     # Apple's AddressBook.app treats everything as a pathname.  Also, the model
     # shouldn't need to know about the URL scheme and such.
-    def current_user_principal
+    def current_user_principal(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<D:current-user-principal xmlns:D='DAV:'><D:href>/carddav/</D:href></D:current-user-principal>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def current_user_privilege_set
+    def current_user_privilege_set(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
 
       s %= get_privileges_aggregate
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def group
+    def group(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
     end
 
-    def owner
+    def owner(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<D:owner xmlns:D='DAV:'><D:href>/carddav/</D:href></D:owner>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def principal_url
+    def principal_url(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<D:principal-URL xmlns:D='DAV:'><D:href>/carddav/</D:href></D:principal-URL>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
@@ -164,6 +177,13 @@ module Carddav
         ret[key].uniq!
       end
       ret
+    end
+
+    # Call this so that we log requests with unexepcted extra fluff
+    def unexpected_arguments(attributes, children)
+      return if (attributes.nil? or attributes.empty?) and (children.nil? or children.empty?)
+
+      Rails.logger.error  "#{caller[0][/`([^']*)'/, 1]} did not expect arguments: #{attributes.inspect} / #{children.inspect}"
     end
 
     private

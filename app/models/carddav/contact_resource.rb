@@ -102,6 +102,8 @@ module Carddav
     protected
 
     def address_data(attributes={}, fields=[])
+      unexpected_arguments(attributes, children)
+
       if fields.empty?
         data = @contact.vcard.to_s
       else
@@ -126,23 +128,33 @@ module Carddav
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def creation_date
+    def creation_date(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       @contact.created_at
     end
 
-    def content_length
+    def content_length(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       @contact.to_s.size
     end
 
-    def content_type
+    def content_type(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       Mime::Type.lookup_by_extension(:vcf).to_s
     end
 
-    def etag
+    def etag(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       @contact.etag
     end
 
-    def last_modified
+    def last_modified(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       @contact.updated_at
     end
 

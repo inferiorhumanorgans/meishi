@@ -51,20 +51,28 @@ module Carddav
     ## Properties follow in alphabetical order
     protected
 
-    def addressbook_description
+    def addressbook_description(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       @address_book.name
     end
 
-    def content_type
+    def content_type(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       # Not the right type, oh well
       Mime::Type.lookup_by_extension(:dir).to_s
     end
 
-    def creation_date
+    def creation_date(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       @address_book.created_at
     end
 
-    def current_user_privilege_set
+    def current_user_privilege_set(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       privileges = %w(read write write-properties write-content read-acl read-current-user-privilege-set)
       s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
 
@@ -76,37 +84,51 @@ module Carddav
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def displayname
+    def displayname(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       @address_book.name
     end
 
-    def getctag
+    def getctag(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s="<APPLE1:getctag xmlns:APPLE1='http://calendarserver.org/ns/'>#{@address_book.updated_at.to_i}</APPLE1:getctag>"
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def getetag
+    def getetag(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       '"None"'
     end
 
     # TODO: It would be more efficient to handle updating mtime with an after_update hook
-    def last_modified
+    def last_modified(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       ([@address_book.updated_at]+@address_book.contacts.collect{|c| c.updated_at}).max
     end
 
     # Limit vCards to 1k for now.
     # TODO: Enforce max-resource-size
-    def max_resource_size
+    def max_resource_size(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       1024
     end
 
     # For legibility let's underscore it and let the supeclass call it
-    def resource_type
+    def resource_type(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s='<resourcetype><D:collection /><C:addressbook xmlns:C="urn:ietf:params:xml:ns:carddav"/></resourcetype>'
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def supported_address_data
+    def supported_address_data(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       s=
       "<C:supported-address-data xmlns:C='urn:ietf:params:xml:ns:carddav'>
         <C:address-data-type content-type='text/vcard' version='3.0' />
@@ -114,7 +136,9 @@ module Carddav
       return Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    def supported_report_set
+    def supported_report_set(attributes={}, children=[])
+      unexpected_arguments(attributes, children)
+
       reports = %w(addressbook-multiget addressbook-query)
       s = "<D:supported-report-set>%s</D:supported-report-set>"
       
