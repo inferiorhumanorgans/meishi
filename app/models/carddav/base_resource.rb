@@ -76,7 +76,8 @@ module Carddav
 
       if our_properties[namespace].include?(name)
         # The base dav4rack handler will use nicer looking function names for some properties
-        # Let's just humor it.
+        # Let's just humor it.  If we don't define a local prop_foo method, fall back to the
+        # super class's implementation of get_property which we hope will handle our request.
         if self.respond_to?(fn)
           if element[:children].empty? and element[:attributes].empty?
             return self.send(fn.to_sym)
