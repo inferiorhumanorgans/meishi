@@ -36,92 +36,88 @@ RFC 6352
     Section 10.4) specify a media type supported by the server for
     address object resources.
 =end
-module Carddav
+class Carddav::AddressBookController < Carddav::BaseController
 
-  class AddressBookController < BaseController
-
-    def report
-      unless resource.exist?
-        return NotFound
-      end
-
-      Rails.logger.error "REPORT XML REQUEST:\n#{request_document.to_xml}"
-      Rails.logger.error "REPORT DEPTH IS: #{depth.inspect}"
-
-
-      if request_document.nil? or request_document.root.nil?
-        xml_error(BadRequest) do |err|
-          err.send :'empty-request'
-        end
-      end
-
-      case request_document.root.name
-      when 'addressbook-multiget'
-        addressbook_multiget
-      else
-        xml_error do |err|
-          err.send :'supported-report'
-        end
-      end
-
+  def report
+    unless resource.exist?
+      return NotFound
     end
 
-    protected
-    def addressbook_multiget
-      Rails.logger.error "REPORT addressbook-multiget"
+    Rails.logger.error "REPORT XML REQUEST:\n#{request_document.to_xml}"
+    Rails.logger.error "REPORT DEPTH IS: #{depth.inspect}"
 
-      # TODO: Include a DAV:error response
-      # CardDAV §8.7 clearly states Depth must equal zero for this report
-      # But Apple's AddressBook.app sets the depth to infinity anyhow.
-      unless depth == 0 or depth == :infinity
-        xml_error(BadRequest) do |err|
-          err.send :'invalid-depth'
-        end
+
+    if request_document.nil? or request_document.root.nil?
+      xml_error(BadRequest) do |err|
+        err.send :'empty-request'
       end
+    end
 
-      props = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('prop')}").children.find_all{|n| n.element?}.map{|n|
-        to_element_hash(n)
-      }
-      # Handle the address-data element
-      # - Check for child properties (vCard fields)
-      # - Check for mime-type and version.  If present they must match vCard 3.0 for now since we don't support anything else.
-      hrefs = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('href')}").collect{|n| 
-        text = n.text
-        # TODO: Make sure that the hrefs passed into the report are either paths or fully qualified URLs with the right host+protocol+port prefix
-        path = URI.parse(text).path
-        Rails.logger.error "Scanned this HREF: #{text} PATH: #{path}"
-        text
-      }.compact
-      
-      if hrefs.empty?
-        xml_error(BadRequest) do |err|
-          err.send :'href-missing'
-        end
+    case request_document.root.name
+    when 'addressbook-multiget'
+      addressbook_multiget
+    else
+      xml_error do |err|
+        err.send :'supported-report'
       end
+    end
 
-      multistatus do |xml|
-        hrefs.each do |_href|
-          xml.response do
-            xml.href _href
+  end
 
-            path = File.split(URI.parse(_href).path).last
-            Rails.logger.error "Creating child w/ ORIG=#{resource.public_path} HREF=#{_href} FILE=#{path}!"
+  protected
+  def addressbook_multiget
+    Rails.logger.error "REPORT addressbook-multiget"
 
-            # TODO: Write a test to cover asking for a report expecting contact objects but given an address book path
-            # Yes, CardDAVMate does this.
-            cur_resource = resource.is_self?(_href) ? resource : resource.child(File.split(path).last)
-            
-            if cur_resource.exist?
-              propstats(xml, get_properties(cur_resource, props))
-            else
-              xml.status "#{http_version} #{NotFound.status_line}"
-            end
+    # TODO: Include a DAV:error response
+    # CardDAV §8.7 clearly states Depth must equal zero for this report
+    # But Apple's AddressBook.app sets the depth to infinity anyhow.
+    unless depth == 0 or depth == :infinity
+      xml_error(BadRequest) do |err|
+        err.send :'invalid-depth'
+      end
+    end
 
+    props = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('prop')}").children.find_all{|n| n.element?}.map{|n|
+      to_element_hash(n)
+    }
+    # Handle the address-data element
+    # - Check for child properties (vCard fields)
+    # - Check for mime-type and version.  If present they must match vCard 3.0 for now since we don't support anything else.
+    hrefs = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('href')}").collect{|n| 
+      text = n.text
+      # TODO: Make sure that the hrefs passed into the report are either paths or fully qualified URLs with the right host+protocol+port prefix
+      path = URI.parse(text).path
+      Rails.logger.error "Scanned this HREF: #{text} PATH: #{path}"
+      text
+    }.compact
+    
+    if hrefs.empty?
+      xml_error(BadRequest) do |err|
+        err.send :'href-missing'
+      end
+    end
+
+    multistatus do |xml|
+      hrefs.each do |_href|
+        xml.response do
+          xml.href _href
+
+          path = File.split(URI.parse(_href).path).last
+          Rails.logger.error "Creating child w/ ORIG=#{resource.public_path} HREF=#{_href} FILE=#{path}!"
+
+          # TODO: Write a test to cover asking for a report expecting contact objects but given an address book path
+          # Yes, CardDAVMate does this.
+          cur_resource = resource.is_self?(_href) ? resource : resource.child(File.split(path).last)
+          
+          if cur_resource.exist?
+            propstats(xml, get_properties(cur_resource, props))
+          else
+            xml.status "#{http_version} #{NotFound.status_line}"
           end
+
         end
       end
     end
-
   end
 
 end

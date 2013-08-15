@@ -1,231 +1,229 @@
-module Carddav
-  class BaseResource < DAV4Rack::Resource
-    # On the subclass define a similar hash for properties specific to that
-    # subclass, and another hash for properties specific to that subclass that
-    # should not be returned in an allprop request.
-    # Properties defined here may be implemented in the subclass, but do not
-    # need to be defined there
-    BASE_PROPERTIES = {
-      'DAV:' => %w(
-        acl
-        acl-restrictions
-        creationdate
-        current-user-principal
-        current-user-privilege-set
-        displayname
-        getcontentlength
-        getcontenttype
-        getetag
-        getlastmodified
-        group
-        owner
-        principal-URL
-        resourcetype
-      ),
-      # Define this here as an empty array so it will fall through to dav4rack
-      # and they'll return a NotImplemented instead of BadRequest
-      'urn:ietf:params:xml:ns:carddav' => []
-    }
+class Carddav::BaseResource < DAV4Rack::Resource
+  # On the subclass define a similar hash for properties specific to that
+  # subclass, and another hash for properties specific to that subclass that
+  # should not be returned in an allprop request.
+  # Properties defined here may be implemented in the subclass, but do not
+  # need to be defined there
+  BASE_PROPERTIES = {
+    'DAV:' => %w(
+      acl
+      acl-restrictions
+      creationdate
+      current-user-principal
+      current-user-privilege-set
+      displayname
+      getcontentlength
+      getcontenttype
+      getetag
+      getlastmodified
+      group
+      owner
+      principal-URL
+      resourcetype
+    ),
+    # Define this here as an empty array so it will fall through to dav4rack
+    # and they'll return a NotImplemented instead of BadRequest
+    'urn:ietf:params:xml:ns:carddav' => []
+  }
 
-    # Define a convenience function for CalDAV properties.  This will define
-    # a function named after the first argument (a symbol) that populates three
-    # instance variables: @attributes, @children, and @attribute. Note that
-    # next should be used inside of blocks instead of return.
-    def self.prop(method, options={}, &b)
-      self.class_eval do
-        define_method(method) do |attributes={}, children=[]|
-          self.instance_variable_set(:@attributes, attributes)
-          self.instance_variable_set(:@children, children)
-          self.instance_variable_set(:@attribute, method)
+  # Define a convenience function for CalDAV properties.  This will define
+  # a function named after the first argument (a symbol) that populates three
+  # instance variables: @attributes, @children, and @attribute. Note that
+  # next should be used inside of blocks instead of return.
+  def self.prop(method, options={}, &b)
+    self.class_eval do
+      define_method(method) do |attributes={}, children=[]|
+        self.instance_variable_set(:@attributes, attributes)
+        self.instance_variable_set(:@children, children)
+        self.instance_variable_set(:@attribute, method)
 
-          unless options[:args] == true
-            unexpected_arguments(attributes, children)
-          end
-
-          self.instance_exec &b
+        unless options[:args] == true
+          unexpected_arguments(attributes, children)
         end
 
-        # DAV4Rack will clobber public methods, so let's make sure these are all protected.
-        protected method
-      end
-    end
-
-    PRIVILEGES = %w(read read-acl read-current-user-privilege-set)
-
-    # Make OSX's AddressBook.app happy :(
-    def setup
-      @propstat_relative_path = true
-      @root_xml_attributes = {
-        'xmlns:C' => 'urn:ietf:params:xml:ns:carddav', 
-        'xmlns:APPLE1' => 'http://calendarserver.org/ns/'
-      }
-    end
-
-    def warden
-      request.env['warden']
-    end
-
-    def current_user
-      @current_user ||= warden.authenticate(:scope => :user)
-      @current_user
-    end
-
-    def is_self?(other_path)
-      ary = [@public_path]
-      ary.push(@public_path+'/') if @public_path[-1] != '/'
-      ary.push(@public_path[0..-2]) if @public_path[-1] == '/'
-      ary.include? other_path
-    end
-
-    def get_property(element)
-      name = element[:name]
-      namespace = element[:ns_href]
-
-      begin
-        our_properties = BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
-        our_properties = BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
-      rescue
-        # Just in case we don't have any properties defined on the subclass
-        our_properties = BASE_PROPERTIES
+        self.instance_exec &b
       end
 
-      unless our_properties.include? namespace
-        raise BadRequest
-      end
-
-      fn = name.underscore
-
-      if our_properties[namespace].include?(name)
-        # The base dav4rack handler will use nicer looking function names for some properties
-        # Let's just humor it.  If we don't define a local prop_foo method, fall back to the
-        # super class's implementation of get_property which we hope will handle our request.
-        if self.respond_to?(fn)
-          if element[:children].empty? and element[:attributes].empty?
-            return self.send(fn.to_sym)
-          else
-            return self.send(fn.to_sym, element[:attributes], element[:children])
-          end
-        end
-      end
-
-      super(element)
+      # DAV4Rack will clobber public methods, so let's make sure these are all protected.
+      protected method
     end
-
-    # Some properties shouldn't be included in an allprop request
-    # but it's nice to do some sanity checking so keeping a list is good
-    def properties
-      BaseResource::merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
-    end
-
-    # Properties in alphabetical order
-    # Properties need to be protected so that dav4rack doesn't alias them away
-    protected
-
-    # Let's implement the simplest policy possible... modifying the permissions
-    # via WebDAV is not supported (yet?).
-    # TODO: Articulate permissions here for all users as part of a proper admin implementation
-    # TODO: Offer up unique principal URIs on a per-user basis
-    prop :acl do
-      s="
-      <D:acl xmlns:D='DAV:'>
-        <D:ace>
-          <D:principal>
-            <D:href>#{url_or_path(:principal)}</D:href>
-          </D:principal>
-          <D:protected/>
-          <D:grant>
-          %s
-          </D:grant>
-        </D:ace>
-      </D:acl>"
-      s %= get_privileges_aggregate
-      Nokogiri::XML::DocumentFragment.parse(s)      
-    end
-
-    prop :acl_restrictions do
-      s="<D:acl-restrictions xmlns:D='DAV:'><D:grant-only/><D:no-invert/></D:acl-restrictions>"
-      Nokogiri::XML::DocumentFragment.parse(s)
-    end
-
-    # This violates the spec that requires an HTTP or HTTPS URL.  Unfortunately,
-    # Apple's AddressBook.app treats everything as a pathname.  Also, the model
-    # shouldn't need to know about the URL scheme and such.
-    prop :current_user_principal do
-      s="<D:current-user-principal xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:current-user-principal>"
-      Nokogiri::XML::DocumentFragment.parse(s)
-    end
-
-    prop :current_user_privilege_set do
-      s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
-
-      s %= get_privileges_aggregate
-      Nokogiri::XML::DocumentFragment.parse(s)
-    end
-
-    prop :group do
-    end
-
-    prop :owner do
-      s="<D:owner xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:owner>"
-      Nokogiri::XML::DocumentFragment.parse(s)
-    end
-
-    prop :principal_url do
-      s="<D:principal-URL xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:principal-URL>"
-      Nokogiri::XML::DocumentFragment.parse(s)
-    end
-
-    # These are not properties.
-    protected
-    def self.merge_properties(all, explicit)
-      ret = all.dup
-      explicit.each do |key, value|
-        ret[key] ||= []
-        ret[key] += value
-        ret[key].uniq!
-      end
-      ret
-    end
-
-    # Call this so that we log requests with unexepcted extra fluff
-    def unexpected_arguments(attributes, children)
-      return if (attributes.nil? or attributes.empty?) and (children.nil? or children.empty?)
-
-      Rails.logger.error "#{@attribute} request did not expect arguments: #{attributes.inspect} / #{children.inspect}"
-    end
-
-    # Default URL builder options -- we need these because we're doing bad things by calling
-    # the URL helpers from outside the view context.
-    def url_options
-      {host: request.host, port: request.port, protocol: request.scheme}
-    end
-
-    # So, for our first quirk: MacOS 10.6 needs paths and not URLs (it will treat URLs as paths...)
-    def url_or_path(route_name, fluff={})
-      method = nil
-
-      if Quirks[:CURRENT_PRINCIPAL_NO_URL]
-        Quirks[:CURRENT_PRINCIPAL_NO_URL].each do |user_agent_match|
-          if Regexp.new(user_agent_match) =~ request.env['HTTP_USER_AGENT']
-            method = (route_name.to_s + '_path').to_sym
-            break
-          end
-        end
-      end
-
-      method ||= (route_name.to_s + '_url').to_sym
-      options = []
-      options << fluff.delete(:object) if fluff.include? :object
-      options << url_options.merge(fluff)
-      Rails.application.routes.url_helpers.send(method, *options)
-    end
-
-    private
-    def get_privileges_aggregate
-      privileges_aggregate = PRIVILEGES.inject('') do |ret, priv|
-        ret << '<D:privilege><%s /></privilege>' % priv
-      end
-    end
-
   end
+
+  PRIVILEGES = %w(read read-acl read-current-user-privilege-set)
+
+  # Make OSX's AddressBook.app happy :(
+  def setup
+    @propstat_relative_path = true
+    @root_xml_attributes = {
+      'xmlns:C' => 'urn:ietf:params:xml:ns:carddav', 
+      'xmlns:APPLE1' => 'http://calendarserver.org/ns/'
+    }
+  end
+
+  def warden
+    request.env['warden']
+  end
+
+  def current_user
+    @current_user ||= warden.authenticate(:scope => :user)
+    @current_user
+  end
+
+  def is_self?(other_path)
+    ary = [@public_path]
+    ary.push(@public_path+'/') if @public_path[-1] != '/'
+    ary.push(@public_path[0..-2]) if @public_path[-1] == '/'
+    ary.include? other_path
+  end
+
+  def get_property(element)
+    name = element[:name]
+    namespace = element[:ns_href]
+
+    begin
+      our_properties = BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
+      our_properties = BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
+    rescue
+      # Just in case we don't have any properties defined on the subclass
+      our_properties = BASE_PROPERTIES
+    end
+
+    unless our_properties.include? namespace
+      raise BadRequest
+    end
+
+    fn = name.underscore
+
+    if our_properties[namespace].include?(name)
+      # The base dav4rack handler will use nicer looking function names for some properties
+      # Let's just humor it.  If we don't define a local prop_foo method, fall back to the
+      # super class's implementation of get_property which we hope will handle our request.
+      if self.respond_to?(fn)
+        if element[:children].empty? and element[:attributes].empty?
+          return self.send(fn.to_sym)
+        else
+          return self.send(fn.to_sym, element[:attributes], element[:children])
+        end
+      end
+    end
+
+    super(element)
+  end
+
+  # Some properties shouldn't be included in an allprop request
+  # but it's nice to do some sanity checking so keeping a list is good
+  def properties
+    BaseResource::merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
+  end
+
+  # Properties in alphabetical order
+  # Properties need to be protected so that dav4rack doesn't alias them away
+  protected
+
+  # Let's implement the simplest policy possible... modifying the permissions
+  # via WebDAV is not supported (yet?).
+  # TODO: Articulate permissions here for all users as part of a proper admin implementation
+  # TODO: Offer up unique principal URIs on a per-user basis
+  prop :acl do
+    s="
+    <D:acl xmlns:D='DAV:'>
+      <D:ace>
+        <D:principal>
+          <D:href>#{url_or_path(:principal)}</D:href>
+        </D:principal>
+        <D:protected/>
+        <D:grant>
+        %s
+        </D:grant>
+      </D:ace>
+    </D:acl>"
+    s %= get_privileges_aggregate
+    Nokogiri::XML::DocumentFragment.parse(s)      
+  end
+
+  prop :acl_restrictions do
+    s="<D:acl-restrictions xmlns:D='DAV:'><D:grant-only/><D:no-invert/></D:acl-restrictions>"
+    Nokogiri::XML::DocumentFragment.parse(s)
+  end
+
+  # This violates the spec that requires an HTTP or HTTPS URL.  Unfortunately,
+  # Apple's AddressBook.app treats everything as a pathname.  Also, the model
+  # shouldn't need to know about the URL scheme and such.
+  prop :current_user_principal do
+    s="<D:current-user-principal xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:current-user-principal>"
+    Nokogiri::XML::DocumentFragment.parse(s)
+  end
+
+  prop :current_user_privilege_set do
+    s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
+
+    s %= get_privileges_aggregate
+    Nokogiri::XML::DocumentFragment.parse(s)
+  end
+
+  prop :group do
+  end
+
+  prop :owner do
+    s="<D:owner xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:owner>"
+    Nokogiri::XML::DocumentFragment.parse(s)
+  end
+
+  prop :principal_url do
+    s="<D:principal-URL xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:principal-URL>"
+    Nokogiri::XML::DocumentFragment.parse(s)
+  end
+
+  # These are not properties.
+  protected
+  def self.merge_properties(all, explicit)
+    ret = all.dup
+    explicit.each do |key, value|
+      ret[key] ||= []
+      ret[key] += value
+      ret[key].uniq!
+    end
+    ret
+  end
+
+  # Call this so that we log requests with unexepcted extra fluff
+  def unexpected_arguments(attributes, children)
+    return if (attributes.nil? or attributes.empty?) and (children.nil? or children.empty?)
+
+    Rails.logger.error "#{@attribute} request did not expect arguments: #{attributes.inspect} / #{children.inspect}"
+  end
+
+  # Default URL builder options -- we need these because we're doing bad things by calling
+  # the URL helpers from outside the view context.
+  def url_options
+    {host: request.host, port: request.port, protocol: request.scheme}
+  end
+
+  # So, for our first quirk: MacOS 10.6 needs paths and not URLs (it will treat URLs as paths...)
+  def url_or_path(route_name, fluff={})
+    method = nil
+
+    if Quirks[:CURRENT_PRINCIPAL_NO_URL]
+      Quirks[:CURRENT_PRINCIPAL_NO_URL].each do |user_agent_match|
+        if Regexp.new(user_agent_match) =~ request.env['HTTP_USER_AGENT']
+          method = (route_name.to_s + '_path').to_sym
+          break
+        end
+      end
+    end
+
+    method ||= (route_name.to_s + '_url').to_sym
+    options = []
+    options << fluff.delete(:object) if fluff.include? :object
+    options << url_options.merge(fluff)
+    Rails.application.routes.url_helpers.send(method, *options)
+  end
+
+  private
+  def get_privileges_aggregate
+    privileges_aggregate = PRIVILEGES.inject('') do |ret, priv|
+      ret << '<D:privilege><%s /></privilege>' % priv
+    end
+  end
+
 end
