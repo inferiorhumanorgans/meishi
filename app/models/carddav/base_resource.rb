@@ -191,7 +191,7 @@ module Carddav
     def unexpected_arguments(attributes, children)
       return if (attributes.nil? or attributes.empty?) and (children.nil? or children.empty?)
 
-      Rails.logger.error  "#{@attribute} request did not expect arguments: #{attributes.inspect} / #{children.inspect}"
+      Rails.logger.error "#{@attribute} request did not expect arguments: #{attributes.inspect} / #{children.inspect}"
     end
 
     # Default URL builder options -- we need these because we're doing bad things by calling
