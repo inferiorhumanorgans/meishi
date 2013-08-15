@@ -1,5 +1,7 @@
 module Carddav
   class ContactResource < AddressBookBaseResource
+    attr_accessor :contact
+
     ALL_PROPERTIES = {
       'urn:ietf:params:xml:ns:carddav' => %w(address-data)
     }
@@ -93,9 +95,7 @@ module Carddav
     end
 
     def delete
-      # TODO: Proper authorization, is this OUR contact?
       @contact.destroy
-      NoContent
     end
 
     # Properties in alphabetical order
