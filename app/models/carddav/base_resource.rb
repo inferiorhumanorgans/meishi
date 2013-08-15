@@ -78,8 +78,6 @@ module Carddav
     end
 
     def get_property(element)
-      Rails.logger.error "Base::get_book_property(#{element})"
-
       name = element[:name]
       namespace = element[:ns_href]
 
@@ -132,7 +130,7 @@ module Carddav
       <D:acl xmlns:D='DAV:'>
         <D:ace>
           <D:principal>
-            <D:href>/carddav/</D:href>
+            <D:href>#{url_or_path(:principal)}</D:href>
           </D:principal>
           <D:protected/>
           <D:grant>
@@ -153,7 +151,7 @@ module Carddav
     # Apple's AddressBook.app treats everything as a pathname.  Also, the model
     # shouldn't need to know about the URL scheme and such.
     prop :current_user_principal do
-      s="<D:current-user-principal xmlns:D='DAV:'><D:href>/carddav/</D:href></D:current-user-principal>"
+      s="<D:current-user-principal xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:current-user-principal>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
@@ -168,16 +166,16 @@ module Carddav
     end
 
     prop :owner do
-      s="<D:owner xmlns:D='DAV:'><D:href>/carddav/</D:href></D:owner>"
+      s="<D:owner xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:owner>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
     prop :principal_url do
-      s="<D:principal-URL xmlns:D='DAV:'><D:href>/carddav/</D:href></D:principal-URL>"
+      s="<D:principal-URL xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:principal-URL>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
-    # This is not a property.
+    # These are not properties.
     protected
     def self.merge_properties(all, explicit)
       ret = all.dup
@@ -194,6 +192,32 @@ module Carddav
       return if (attributes.nil? or attributes.empty?) and (children.nil? or children.empty?)
 
       Rails.logger.error  "#{@attribute} request did not expect arguments: #{attributes.inspect} / #{children.inspect}"
+    end
+
+    # Default URL builder options -- we need these because we're doing bad things by calling
+    # the URL helpers from outside the view context.
+    def url_options
+      {host: request.host, port: request.port, protocol: request.scheme}
+    end
+
+    # So, for our first quirk: MacOS 10.6 needs paths and not URLs (it will treat URLs as paths...)
+    def url_or_path(route_name, fluff={})
+      method = nil
+
+      if Quirks[:CURRENT_PRINCIPAL_NO_URL]
+        Quirks[:CURRENT_PRINCIPAL_NO_URL].each do |user_agent_match|
+          if Regexp.new(user_agent_match) =~ request.env['HTTP_USER_AGENT']
+            method = (route_name.to_s + '_path').to_sym
+            break
+          end
+        end
+      end
+
+      method ||= (route_name.to_s + '_url').to_sym
+      options = []
+      options << fluff.delete(:object) if fluff.include? :object
+      options << url_options.merge(fluff)
+      Rails.application.routes.url_helpers.send(method, *options)
     end
 
     private

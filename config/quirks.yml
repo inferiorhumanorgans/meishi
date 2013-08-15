@@ -1,0 +1,8 @@
+# This file contains a hash of arrays.  Key is the quirk, array contains a list of strings to be parsed as regexes that will
+# match the user-agent string.
+
+---
+# MacOS 10.6 requires the current-user-principal property to be a path.
+# RFC 5397 §3 requires that the current-user-principal property to be an HTTP or HTTPS URL
+:CURRENT_PRINCIPAL_NO_URL:
+- /Darwin\/10\./

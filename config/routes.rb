@@ -23,7 +23,7 @@ Meishi::Application.routes.draw do
       :root_uri_path => '/carddav',
       :resource_class => Carddav::PrincipalResource,
       :controller_class => Carddav::BaseController
-    )
+    ), :as => :principal
 
     match '/book/:book_id/:card_id', :to => DAV4Rack::Handler.new(
       :root => '/book',

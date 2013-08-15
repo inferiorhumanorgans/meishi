@@ -17,7 +17,6 @@ module Carddav
 
     def exist?
       ret = (path == '')
-      STDERR.puts "*** Principal::exist?(#{path}) = #{ret}"
       return ret
     end
 
@@ -34,7 +33,7 @@ module Carddav
 
     # We should muck about in the routes and figure out the proper path
     prop :addressbook_home_set do
-      s="<C:addressbook-home-set xmlns:C='urn:ietf:params:xml:ns:carddav'><D:href xmlns:D='DAV:'>/book/</D:href></C:addressbook-home-set>"
+      s="<C:addressbook-home-set xmlns:C='urn:ietf:params:xml:ns:carddav'><D:href xmlns:D='DAV:'>#{url_or_path(:book, trailing_slash: true)}</D:href></C:addressbook-home-set>"
       Nokogiri::XML::DocumentFragment.parse(s)
     end
 
