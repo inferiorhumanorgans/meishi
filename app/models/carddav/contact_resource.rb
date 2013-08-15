@@ -30,23 +30,9 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
     @contact = Contact.find_by_uid_and_address_book_id(uid, @address_book.id)
   end
 
-  def put(request, response)
-    b = request.body.read
-
-    # Ensure we only have one vcard per request
-    # Section 5.1:
-    # Address object resources contained in address book collections MUST
-    # contain a single vCard component only.
-    vcard_array = Vcard::Vcard.decode(b)
-    raise BadRequest if vcard_array.size != 1
-    vcf = vcard_array.first
-
-    # Pull out all the fields we specify ourselves.
-    contents = vcf.fields.select {|f| !(%w(BEGIN VERSION UID END).include? f.name) }
+  def put(request, response, vcf)
 
     uid = vcf.value('UID')
-    
-    raise BadRequest if uid =~ /\./ # Yeah, this'll break our routes.
 
     # Check for If-None-Match: *
     # Section: 6.3.2
@@ -65,6 +51,9 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
 
     @contact.address_book = @address_book
     @contact.uid = uid
+
+    # Pull out all the fields we specify ourselves.
+    contents = vcf.fields.select {|f| !(%w(BEGIN VERSION UID END).include? f.name) }
     contents.each do |f|
       @contact.fields.build(:name => f.name, :value => f.value)
     end
