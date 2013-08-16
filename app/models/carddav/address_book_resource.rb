@@ -20,6 +20,7 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
     'urn:ietf:params:xml:ns:carddav' => %w(
       addressbook-description
       max-resource-size
+      quota-used-bytes
       supported-collation-set
       supported-address-data
     )
@@ -98,6 +99,11 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
   # TODO: Enforce max-resource-size
   prop :max_resource_size do
     1024
+  end
+
+  prop :quota_used_bytes do
+    contact_ids = Contact.where(address_book_id: @address_book.id).collect{|c| c.id}
+    Field.where(contact_id: contact_ids).collect{|f| f.name.length + f.value.length}.reduce(:+)
   end
 
   # For legibility let's underscore it and let the supeclass call it
