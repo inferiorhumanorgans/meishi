@@ -39,13 +39,13 @@ RFC 6352
 class Carddav::AddressBookController < Carddav::BaseController
 
   def report
+    debug_report = ENV['MEISHI_DEBUG_REPORT'].to_i
+
     unless resource.exist?
       return NotFound
     end
 
-    Rails.logger.error "REPORT XML REQUEST:\n#{request_document.to_xml}"
-    Rails.logger.error "REPORT DEPTH IS: #{depth.inspect}"
-
+    Rails.logger.debug "REPORT DEPTH IS: #{depth.inspect}" if debug_report >= 1
 
     if request_document.nil? or request_document.root.nil?
       xml_error(BadRequest) do |err|
@@ -53,6 +53,7 @@ class Carddav::AddressBookController < Carddav::BaseController
       end
     end
 
+    Rails.logger.debug "REPORT type: #{request_document.root.name}" if debug_report >= 1
     case request_document.root.name
     when 'addressbook-multiget'
       addressbook_multiget
@@ -66,7 +67,7 @@ class Carddav::AddressBookController < Carddav::BaseController
 
   protected
   def addressbook_multiget
-    Rails.logger.error "REPORT addressbook-multiget"
+    debug_multiget = ENV['MEISHI_DEBUG_REPORT_LIST'] =~ /multiget/
 
     # TODO: Include a DAV:error response
     # CardDAV §8.7 clearly states Depth must equal zero for this report
@@ -87,7 +88,7 @@ class Carddav::AddressBookController < Carddav::BaseController
       text = n.text
       # TODO: Make sure that the hrefs passed into the report are either paths or fully qualified URLs with the right host+protocol+port prefix
       path = URI.parse(text).path
-      Rails.logger.error "Scanned this HREF: #{text} PATH: #{path}"
+      Rails.logger.debug "Scanned this HREF: #{text} PATH: #{path}" if debug_multiget
       text
     }.compact
     
