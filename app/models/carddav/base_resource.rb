@@ -81,9 +81,8 @@ class Carddav::BaseResource < DAV4Rack::Resource
     namespace = element[:ns_href]
 
     begin
-      our_properties = BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
-      our_properties = BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
-    rescue
+      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
+      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
       # Just in case we don't have any properties defined on the subclass
       our_properties = BASE_PROPERTIES
     end
@@ -113,7 +112,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
   # Some properties shouldn't be included in an allprop request
   # but it's nice to do some sanity checking so keeping a list is good
   def properties
-    BaseResource::merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
+    Carddav::BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
   end
 
   # Properties in alphabetical order
