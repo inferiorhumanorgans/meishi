@@ -21,6 +21,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
       principal-URL
       resourcetype
     ),
+
     # Define this here as an empty array so it will fall through to dav4rack
     # and they'll return a NotImplemented instead of BadRequest
     'urn:ietf:params:xml:ns:carddav' => []
@@ -83,6 +84,11 @@ class Carddav::BaseResource < DAV4Rack::Resource
     begin
       our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
       our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
+    rescue => e
+      if ENV['MEISHI_DEBUG_SUPPORTED_PROPS'].to_i >= 2
+        Rails.logger.info "Failed to parse supported properties #{e.inspect}"
+      end
+
       # Just in case we don't have any properties defined on the subclass
       our_properties = BASE_PROPERTIES
     end
@@ -103,6 +109,15 @@ class Carddav::BaseResource < DAV4Rack::Resource
         else
           return self.send(fn.to_sym, element[:attributes], element[:children])
         end
+      end
+    end
+
+    debug_props = ENV['MEISHI_DEBUG_SUPPORTED_PROPS'].to_i
+    if debug_props >= 1
+      Rails.logger.debug "Skipping ns:\"#{namespace}\" prop: #{name} on #{self.class} respond: #{self.respond_to?(fn)} our_props: #{our_properties[namespace].include?(name)}"
+      if debug_props >= 2
+        Rails.logger.debug "Our properties: #{our_properties[namespace].join(', ')}"
+        Rails.logger.debug ""
       end
     end
 

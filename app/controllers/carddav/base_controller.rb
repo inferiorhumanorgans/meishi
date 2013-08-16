@@ -2,6 +2,10 @@ class Carddav::BaseController < DAV4Rack::Controller
 
   NAMESPACES = %w(urn:ietf:params:xml:ns:carddav DAV:)
 
+  # For XML logging
+  NO_INDENT_FLAGS = {save_with: Nokogiri::XML::Node::SaveOptions::AS_XML | Nokogiri::XML::Node::SaveOptions::NO_DECLARATION}
+  YES_INDENT_FLAGS = {save_with: Nokogiri::XML::Node::SaveOptions::FORMAT | Nokogiri::XML::Node::SaveOptions::NO_DECLARATION, indent: 2}
+
   # TODO: Should really move towards inheriting from the proper rails classes
   # Anyhow the intent here is to ensure that the DAV header gets set for every
   # request under our purview.  Yes, a before_filter would be cleaner.
@@ -16,6 +20,29 @@ class Carddav::BaseController < DAV4Rack::Controller
   def options
     @response["Allow"] = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
     OK
+  end
+
+  def propfind
+    super
+
+    debug_request = ENV['MEISHI_DEBUG_XML_REQUEST'].to_i
+    if debug_request >= 1
+      Rails.logger.debug "*** REQUEST BEGIN"
+      Rails.logger.debug request_document.to_xml((debug_request >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+      Rails.logger.debug "*** REQUEST END"
+    end
+
+    debug_response = ENV['MEISHI_DEBUG_XML_RESPONSE'].to_i
+    if debug_response >= 1
+      Rails.logger.debug "*** RESPONSE BEGIN"
+      x = Nokogiri::XML(response.body) do |config|
+        config.default_xml.noblanks
+      end
+
+      Rails.logger.debug x.to_xml((debug_response >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+
+      Rails.logger.debug "*** RESPONSE END"
+    end
   end
 
   protected
