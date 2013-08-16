@@ -27,7 +27,7 @@ describe Contact do
       user = User.make!(:user1)
       address_book = AddressBook.make!(:address_book1)
       contact = Contact.make!(:contact1)
-      contact.vcard.should be_kind_of(Vpim::Vcard)
+      contact.vcard.should be_kind_of(Vcard::Vcard)
     end
   end
 end
