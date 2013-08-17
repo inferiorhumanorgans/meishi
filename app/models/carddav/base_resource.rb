@@ -217,14 +217,8 @@ class Carddav::BaseResource < DAV4Rack::Resource
   def url_or_path(route_name, fluff={})
     method = nil
 
-    Quirks[:CURRENT_PRINCIPAL_NO_URL].each do |user_agent_match|
-      if Regexp.new(user_agent_match) =~ request.env['HTTP_USER_AGENT']
-        method = (route_name.to_s + '_path').to_sym
-        break
-      end
-    end
-
-    method ||= (route_name.to_s + '_url').to_sym
+    use_path = Quirks.match(:CURRENT_PRINCIPAL_NO_URL, request.env['HTTP_USER_AGENT'])
+    method = (route_name.to_s + (use_path ? '_path' : '_url')).to_sym
     options = []
     options << fluff.delete(:object) if fluff.include? :object
     options << url_options.merge(fluff)
