@@ -1,0 +1,5 @@
+config/**/*.rb
+app/**/*.rb
+lib/**/*.rb
+vendor/**/*.rb
+--no-private

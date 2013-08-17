@@ -23,6 +23,8 @@ end
 
 group :development do
   gem 'quiet_assets'
+  gem 'yard'
+  gem 'redcarpet'
 end
 
 group :test do
