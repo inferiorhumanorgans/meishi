@@ -16,6 +16,10 @@ Meishi::Application.routes.draw do
   match '/principals/carddav' => redirect('/carddav/'), :via => [:propfind]
   ## END MacOSX 10.6 hacks 
 
+  ## BEGIN RFC 6764
+  match '/.well-known/carddav' => redirect('/carddav/'), :via => [:propfind]
+  ## END RFC 6764
+
   # TODO: Refactor these…
   constraints(ForceHTTPAuthConstraint) do
     match '/carddav/', :to => DAV4Rack::Handler.new(
