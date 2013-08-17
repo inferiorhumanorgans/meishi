@@ -1,8 +1,9 @@
-# This class has some stuff common to the address books, their collections, and contacts
+# This class has some stuff common to the address books, their collections,
+# and contacts.
 class Carddav::AddressBookBaseResource < Carddav::BaseResource
-  # name:: Name of child
+  # @param name Name of child
   # Create a new child with the given name
-  # NOTE:: Include trailing '/' if child is collection  
+  # @note Include a trailing '/' if child is collection  
   def child(name)
     new_public = public_path.dup
     new_public = new_public + '/' unless new_public[-1,1] == '/'

@@ -1,3 +1,6 @@
+# This is a base CardDAV resource class.  It defines some standard
+# DAV / CardDAV properties as well as some helper functions used by
+# the other resource classes.
 class Carddav::BaseResource < DAV4Rack::Resource
   # On the subclass define a similar hash for properties specific to that
   # subclass, and another hash for properties specific to that subclass that
@@ -22,16 +25,21 @@ class Carddav::BaseResource < DAV4Rack::Resource
       resourcetype
     ),
 
-    # Define this here as an empty array so it will fall through to dav4rack
-    # and they'll return a NotImplemented instead of BadRequest
+    # Define the carddav namespace as an empty array so it will fall through
+    # to dav4rack and carddav properties will return a NotImplemented instead
+    # of BadRequest
     'urn:ietf:params:xml:ns:carddav' => []
   }
 
-  # Define a convenience function for CalDAV properties.  This will define
-  # a function named after the first argument (a symbol) that populates three
-  # instance variables: @attributes, @children, and @attribute. Note that
-  # next should be used inside of blocks instead of return.
-  def self.prop(method, options={}, &b)
+    # This is a convenience function for CalDAV properties.  It will define
+    # a function named after the first argument (a symbol) that populates three
+    # instance variables: @attributes, @children, and @attribute.
+    # @note The keyword next MUST be used inside of blocks instead of return.
+    # @param method [Symbol]
+    # @param options [Hash]
+    # @param block [Proc]
+    # @return [void]
+  def self.prop(method, options={}, &block)
     self.class_eval do
       define_method(method) do |attributes={}, children=[]|
         self.instance_variable_set(:@attributes, attributes)
@@ -42,7 +50,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
           unexpected_arguments(attributes, children)
         end
 
-        self.instance_exec &b
+        self.instance_exec &block
       end
 
       # DAV4Rack will clobber public methods, so let's make sure these are all protected.
@@ -52,8 +60,14 @@ class Carddav::BaseResource < DAV4Rack::Resource
 
   PRIVILEGES = %w(read read-acl read-current-user-privilege-set)
 
-  # Make OSX's AddressBook.app happy :(
+    # Performs some initial configuration. This function is called from the
+    # DAV4Rack initializer and does some mangling to make OSX Snow Leopard's
+    # AddressBook.app happy.  Frist, it instructs DAV4Rack to send paths in
+    # lieu of proper URLs in PROPFIND responses.  Second, it adds two of 
+    # Apple's proprietary XML namespaces to all XML responses.
   def setup
+    # TODO: Rework this to be a function so that non OSX clients get URLs
+    # and OSX.6 gets paths via the CURRENT_PRINCIPAL_NO_URL quirk.
     @propstat_relative_path = true
     @root_xml_attributes = {
       'xmlns:C' => 'urn:ietf:params:xml:ns:carddav', 
@@ -61,10 +75,13 @@ class Carddav::BaseResource < DAV4Rack::Resource
     }
   end
 
+  # Returns the warden authentication object
   def warden
     request.env['warden']
   end
 
+    # Returns the current user object. If not logged in, the user is
+    # prompted for authentication credentials.
   def current_user
     @current_user ||= warden.authenticate(:scope => :user)
     @current_user

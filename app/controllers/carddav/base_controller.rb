@@ -2,12 +2,16 @@ class Carddav::BaseController < DAV4Rack::Controller
 
   NAMESPACES = %w(urn:ietf:params:xml:ns:carddav DAV:)
 
-  # For XML logging
+  # Flags for to_xml for use with XML debugging/logging.  This will compact everything.
   NO_INDENT_FLAGS = {save_with: Nokogiri::XML::Node::SaveOptions::AS_XML | Nokogiri::XML::Node::SaveOptions::NO_DECLARATION}
+  # Flags for to_xml for use with XML debugging/logging.  This will pretty print things.
   YES_INDENT_FLAGS = {save_with: Nokogiri::XML::Node::SaveOptions::FORMAT | Nokogiri::XML::Node::SaveOptions::NO_DECLARATION, indent: 2}
 
-  # TODO: Should really move towards inheriting from the proper rails classes
-  # Anyhow the intent here is to ensure that the DAV header gets set for every
+  # Constructor.
+  # @param [Rack::Request] request
+  # @param [Rack::Response] response
+  # @param [Hash] options
+  # The intent here is to ensure that the DAV header gets set for every
   # request under our purview.  Yes, a before_filter would be cleaner.
   # Apparently AddressBook.app will skip its OPTIONS request if it sees the DAV
   # header.  Neat.
@@ -16,12 +20,18 @@ class Carddav::BaseController < DAV4Rack::Controller
     @response["DAV"] = "1, 2, access-control, addressbook"
   end
 
-  # Return response to OPTIONS
+  # Default OPTIONS handler.
+  # @return [DAV4Rack::HTTPStatus]
   def options
     @response["Allow"] = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
     OK
   end
 
+  # Default PROPFIND handler.  The only difference from the DAV4Rack handler
+  # is that we have some extra logging bits tacked onto the end.  The
+  # following environment variables control the logging:
+  # - MEISHI_DEBUG_XML_REQUEST If >=1 log the XML request. If >= 2 pretty print it.
+  # - MEISHI_DEBUG_XML_RESPONSE If >=1 log the XML response. If >= 2 pretty print it.
   def propfind
     super
 
