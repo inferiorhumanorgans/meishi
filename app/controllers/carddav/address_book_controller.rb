@@ -40,6 +40,8 @@ class Carddav::AddressBookController < Carddav::BaseController
 
   def report
     debug_report = ENV['MEISHI_DEBUG_REPORT'].to_i
+    debug_request = ENV['MEISHI_DEBUG_XML_REQUEST'].to_i
+    debug_response = ENV['MEISHI_DEBUG_XML_RESPONSE'].to_i
 
     unless resource.exist?
       return NotFound
@@ -54,6 +56,13 @@ class Carddav::AddressBookController < Carddav::BaseController
     end
 
     Rails.logger.debug "REPORT type: #{request_document.root.name}" if debug_report >= 1
+
+    if debug_request >= 1
+      Rails.logger.debug "*** REQUEST BEGIN"
+      Rails.logger.debug request_document.to_xml((debug_request >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+      Rails.logger.debug "*** REQUEST END"
+    end
+
     case request_document.root.name
     when 'addressbook-multiget'
       addressbook_multiget
@@ -61,6 +70,16 @@ class Carddav::AddressBookController < Carddav::BaseController
       xml_error do |err|
         err.send :'supported-report'
       end
+    end
+
+    if debug_response >= 1
+      Rails.logger.debug "*** RESPONSE BEGIN"
+      x = Nokogiri::XML(response.body) do |config|
+        config.default_xml.noblanks
+      end
+      Rails.logger.debug x.to_xml((debug_response >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+
+      Rails.logger.debug "*** RESPONSE END"
     end
 
   end
@@ -72,7 +91,7 @@ class Carddav::AddressBookController < Carddav::BaseController
     # TODO: Include a DAV:error response
     # CardDAV §8.7 clearly states Depth must equal zero for this report
     # But Apple's AddressBook.app (OSX 10.6) sets the depth to infinity anyhow.
-    infinity_ok = Quirks.match(:INFINITE_ADDRESS_BOOK_MULTIGET, request.env['HTTP_USER_AGENT'])
+    infinity_ok = Quirks.match(:INFINITE_ADDRESS_BOOK_MULTIGET, request.user_agent)
 
     unless (depth == 0) or (depth == :infinity and infinity_ok)
       xml_error(BadRequest) do |err|
