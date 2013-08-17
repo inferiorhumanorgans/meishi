@@ -41,6 +41,7 @@ gem 'warden'
 gem 'rails_warden'
 gem 'devise'
 gem 'dav4rack', :git => 'https://github.com/inferiorhumanorgans/dav4rack.git'
+gem 'sys-filesystem'
 
 gem "twitter-bootstrap-rails"
 

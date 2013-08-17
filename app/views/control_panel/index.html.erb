@@ -7,6 +7,17 @@
 
   <% if @address_books.empty? -%>
     <p>You have not created any address books yet, <%= link_to 'create one', new_address_book_url -%> to get started.</p>
+  <% else %>
+    <p>
+      You are using <%= number_to_human_size current_user.quota_used_bytes, delimiter: ',' %>
+      <% if current_user.quota_limit > 0 %>
+        out of a max <%= number_to_human_size current_user.quota_limit, delimiter: ',' %>
+      <% end %>.
+    </p>
+  <% end %>
+
+  <% if current_user.admin? %>
+    <p>You are an admin.</p>
   <% end %>
 
 </div>

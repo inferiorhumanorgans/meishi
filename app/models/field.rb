@@ -1,5 +1,6 @@
 class Field < ActiveRecord::Base
   belongs_to :contact, :touch => true
+  has_one :address_book, :through => :contact
 
   validates_presence_of :name, :value
 

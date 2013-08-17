@@ -18,6 +18,7 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
 
   EXPLICIT_PROPERTIES = {
     'DAV:' => %w(
+      quota-available-bytes
       quota-used-bytes
     ),
     'urn:ietf:params:xml:ns:carddav' => %w(
@@ -97,15 +98,44 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
     ([@address_book.updated_at]+@address_book.contacts.collect{|c| c.updated_at}).max
   end
 
-  # Limit vCards to 1k for now.
-  # TODO: Enforce max-resource-size
+  # Max acceptable size of a vCard.
   prop :max_resource_size do
-    1024
+    Meishi::Application.config.quota_max_vcard_size
+  end
+
+  prop :quota_available_bytes do
+    global_limit = nil
+    user_limit = nil
+    fsinfo = Sys::Filesystem.stat(Sys::Filesystem.mount_point(Rails.root))
+
+    # The global quota is expensive.
+    case Meishi::Application.config.quota_global_limit
+    when :off
+      global_limit = nil
+    when :absolute
+      global_limit = Field.all.inject(0) {|ret, field| ret += (field.name.length + field.value.length)}
+    when :percent
+      disk_size = (fsinfo.blocks * fsinfo.block_size)
+      global_limit = disk_size * (Meishi::Application.config.quota_global_value.to_f / 100.0)
+    else
+      raise InternalServerError
+    end
+
+    free_space = (fsinfo.blocks_free * fsinfo.block_size)
+
+    user_limit = current_user.quota_limit
+    user_limit = nil if user_limit == 0
+
+    address_book_limit = nil
+
+    ([address_book_limit, global_limit, user_limit, free_space].compact.min - quota_used_bytes).to_i
+
   end
 
   prop :quota_used_bytes do
-    contact_ids = Contact.where(address_book_id: @address_book.id).collect{|c| c.id}
-    Field.where(contact_id: contact_ids).collect{|f| f.name.length + f.value.length}.reduce(:+)
+    Field.joins(:address_book)
+         .where('contacts.address_book_id' => @address_book.id)
+         .inject(0) {|ret, field| ret += (field.name.length + field.value.length)}
   end
 
   # For legibility let's underscore it and let the supeclass call it

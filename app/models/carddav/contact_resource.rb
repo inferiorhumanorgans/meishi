@@ -32,37 +32,9 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
 
   def put(request, response, vcf)
 
-    uid = vcf.value('UID')
+    @contact ||= Contact.new(address_book: @address_book, uid: vcf.value('UID'))
 
-    # Check for If-None-Match: *
-    # Section: 6.3.2
-    # If set, client does not want to clobber; error if contact present
-    want_new_contact = (request.env['HTTP_IF_NONE_MATCH'] == '*')
-
-    @contact = Contact.find_by_uid(uid)
-
-    # If the client has explicitly stated they want a new contact
-    raise Conflict if (want_new_contact and @contact)
-
-    # Otherwise let's update it
-    @contact.fields.clear if @contact
-
-    @contact ||= Contact.new
-
-    @contact.address_book = @address_book
-    @contact.uid = uid
-
-    # Pull out all the fields we specify ourselves.
-    contents = vcf.fields.select {|f| !(%w(BEGIN VERSION UID END).include? f.name) }
-    contents.each do |f|
-      @contact.fields.build(:name => f.name, :value => f.value)
-    end
-
-    # This is gross.  SoGo sometimes sends out vCard data w/o the mandatory N field
-    # And Vpim gobbles up the FN field so it's inaccessible directly
-    if vcf.value('N').nil? or vcf.value('N').fullname.empty?
-      raise BadRequest
-    end
+    raise BadRequest unless @contact.update_from_vcard_text(vcf)
 
     if @contact.save
       @public_path = "/book/#{@address_book.id}/#{@contact.uid}"
@@ -79,7 +51,7 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
     Rails.logger.error "Contact::Parent FOR: #{@public_path}"
     elements = File.split(@public_path)
     return nil if (elements.first == '/book')
-    AddressBookResource.new(elements.first, elements.first, @request, @response, @options.merge(:user => @user))
+    Carddav::AddressBookResource.new(elements.first, elements.first, @request, @response, @options.merge(:user => @user))
   end
 
   def delete

@@ -79,4 +79,12 @@ class Carddav::BaseController < DAV4Rack::Controller
     "*[local-name()='#{name}' and namespace-uri()='#{ns_uri}']"
   end
 
+  # Returns the warden authentication object
+  def warden
+    request.env['warden']
+  end
+
+  def current_user
+    @current_user ||= warden.authenticate(:scope => :user)
+  end
 end

@@ -29,6 +29,21 @@ class Contact < ActiveRecord::Base
     @vcard ||= Vcard::Vcard.decode(vcard_raw).first
   end
 
+  def update_from_vcard_text(vcf)
+    # This is gross.  SoGo sometimes sends out vCard data w/o the mandatory N field
+    # And Vpim gobbles up the FN field so it's inaccessible directly
+    return nil if vcf.value('N').nil? or vcf.value('N').fullname.empty?
+
+    fields.clear
+
+    # Pull out all the fields we specify ourselves.
+    contents = vcf.fields.select {|f| !(%w(BEGIN VERSION UID END).include? f.name) }
+    contents.each do |f|
+      fields.build(:name => f.name, :value => f.value)
+    end
+
+  end
+
   # This relies on FN existing, which it *SHOULD*
   # A quick SQL lookup is much faster than vcard parsing
   def quick_name

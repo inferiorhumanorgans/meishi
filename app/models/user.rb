@@ -11,4 +11,10 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :username
 
   has_many :address_books, :dependent => :destroy
+
+  def quota_used_bytes
+    Field.joins(:address_book)
+         .where('address_books.user_id' => self.id)
+         .inject(0) {|ret, field| ret += (field.name.length + field.value.length)}
+  end
 end
