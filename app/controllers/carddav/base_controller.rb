@@ -18,6 +18,7 @@ class Carddav::BaseController < DAV4Rack::Controller
   def initialize(request, response, options={})
     super
     @response["DAV"] = "1, 2, access-control, addressbook"
+    @response['Access-Control-Allow-Origin'] = '*' if Meishi::Application.config.permissive_cross_domain_policy == true
   end
 
   # Default OPTIONS handler.

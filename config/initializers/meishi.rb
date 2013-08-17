@@ -8,4 +8,7 @@ Meishi::Application.configure do
   config.quota_global_value = 15
 
   config.quota_max_vcard_size = 1.kilobyte
+
+  # Set to true for remote access from a browser (ex: CardDAVMate)
+  config.permissive_cross_domain_policy = false
 end
