@@ -1,8 +1,8 @@
-class Carddav::ContactController < DAV4Rack::Controller
+class Carddav::ContactController < Carddav::BaseController
 
   def delete
     raise NotFound unless resource.exist?
-    
+
     resource.lock_check
 
     unless resource.contact.address_book.user.id == current_user.id
