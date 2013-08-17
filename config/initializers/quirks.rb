@@ -4,9 +4,19 @@ class Quirks
     File.open(Rails.root.join(filename), 'r') do |f|
       y = YAML.load(f.read)
       y.each do |key, value|
-        y[key] = value.collect{|s| Regexp.new(s[1..-2])}
+        y[key] = value.collect{|s|
+          # Serializing regular expressions is gross, so let's just look for
+          # strings that look like regexps and leave everything else alone.
+          if s =~ /^\/.*\/$/
+            Regexp.new(s[1..-2])
+          else
+            s
+          end
+        }
       end
+
       y.default_proc = Proc.new {[]}
+
       y
     end
   end
