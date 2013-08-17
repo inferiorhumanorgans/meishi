@@ -6,6 +6,7 @@ class Quirks
       y.each do |key, value|
         y[key] = value.collect{|s| Regexp.new(s[1..-2])}
       end
+      y.default_proc = Proc.new {[]}
       y
     end
   end
