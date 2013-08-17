@@ -22,5 +22,7 @@ class Carddav::AddressBookCollectionResource < Carddav::AddressBookBaseResource
   end
 
   ## Properties follow in alphabetical order
-
+  prop :displayname do
+    "#{current_user.username}'s Meishi Address Book Collection"
+  end
 end
