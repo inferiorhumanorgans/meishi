@@ -7,3 +7,8 @@
 # HTTP or HTTPS URL
 :CURRENT_PRINCIPAL_NO_URL:
 - /Darwin\/10\./
+
+# MacOS 10.6 sets the depth to infinity for addressbook-multiget reports yet
+# CardDAV §8.7 clearly states Depth must equal zero for this report
+:INFINITE_ADDRESS_BOOK_MULTIGET:
+- /Darwin\/10\./
