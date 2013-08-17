@@ -17,10 +17,12 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
   }
 
   EXPLICIT_PROPERTIES = {
+    'DAV:' => %w(
+      quota-used-bytes
+    ),
     'urn:ietf:params:xml:ns:carddav' => %w(
       addressbook-description
       max-resource-size
-      quota-used-bytes
       supported-collation-set
       supported-address-data
     )
