@@ -32,6 +32,10 @@ To get started:
 
 Read only support has been tested.  Autodiscovery should work, takes a principal URL will present the user with a list of address books to choose from.  Ex: https://carddav.example.com/carddav/
 
+### BlackBerry OS 10
+
+CardDAV support in versions prior to 10.2 is broken beyond repair.  10.2 has been tested and should work OK.  However, BlackBerryOS will only attempt a CardDAV connection over HTTPS.  This means Meishi needs to be put behind a proxy (such as Apache or nginx) or run with webrick configured to handle SSL connections.  BlackBerryOS will not parse principal URLs for CardDAV accounts, instead it will only let a user input a host name/address, port, and path of the principal URL.
+
 ### CardDavMate
 
 Read only support has been tested.  Should work once you rip out the hardcoded-for-davical regexp in config.js.

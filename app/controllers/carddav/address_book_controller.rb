@@ -91,9 +91,10 @@ class Carddav::AddressBookController < Carddav::BaseController
     # TODO: Include a DAV:error response
     # CardDAV §8.7 clearly states Depth must equal zero for this report
     # But Apple's AddressBook.app (OSX 10.6) sets the depth to infinity anyhow.
-    infinity_ok = Quirks.match(:INFINITE_ADDRESS_BOOK_MULTIGET, request.user_agent)
+    # BB10.2 sets depth to 1 for some unknown reason.
+    ignore_depth = Quirks.match(:IGNORE_ADDRESS_BOOK_MULTIGET_DEPTH, request.user_agent)
 
-    unless (depth == 0) or (depth == :infinity and infinity_ok)
+    unless (depth == 0) or ignore_depth
       xml_error(BadRequest) do |err|
         err.send :'invalid-depth'
       end
