@@ -131,7 +131,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
 
     debug_props = ENV['MEISHI_DEBUG_SUPPORTED_PROPS'].to_i
     if debug_props >= 1
-      Rails.logger.debug "Skipping ns:\"#{namespace}\" prop: #{name} on #{self.class} respond: #{self.respond_to?(fn)} our_props: #{our_properties[namespace].include?(name)}"
+      Rails.logger.debug "Skipping ns:\"#{namespace}\" prop:#{name} sym:#{fn.inspect} on #{self.class} respond: #{self.respond_to?(fn)} our_props: #{our_properties[namespace].include?(name)}"
       if debug_props >= 2
         Rails.logger.debug "Our properties: #{our_properties[namespace].join(', ')}"
         Rails.logger.debug ""
