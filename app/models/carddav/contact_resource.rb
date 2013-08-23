@@ -103,8 +103,10 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
     @contact.etag
   end
 
-  prop :last_modified do
-    @contact.updated_at
+  prop :getlastmodified do
+    @contact.updated_at.httpdate
+  end
+
   end
 
 end

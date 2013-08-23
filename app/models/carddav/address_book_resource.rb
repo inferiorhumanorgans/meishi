@@ -94,8 +94,8 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
   end
 
   # TODO: It would be more efficient to handle updating mtime with an after_update hook
-  prop :last_modified do
-    ([@address_book.updated_at]+@address_book.contacts.collect{|c| c.updated_at}).max
+  prop :getlastmodified do
+    @address_book.contacts.inject([@address_book.updated_at]){|ret, contact| ret << contact.updated_at}.max.httpdate
   end
 
   # Max acceptable size of a vCard.
