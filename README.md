@@ -38,7 +38,13 @@ CardDAV support in versions prior to 10.2 is broken beyond repair.  10.2 has bee
 
 ### CardDavMate
 
-Read only support has been tested.  Should work once you rip out the hardcoded-for-davical regexp in config.js.
+CardDavMate needs a few modifications in order to work.  First, as it's
+browser based, config.permissive_cross_domain_policy needs to be set to
+**true** in config/initializers/meishi.rb if meishi is running on a different
+host than CardDavMate.  Then, the hardcoded-for-davical regexp in config.js
+needs to be removed.  And, finally, webdav_protocol.js needs to be edited to
+set the Depth header properly on an addressbook-multiget report (currently
+line 2177).
 
 ### MacOS X AddresBook.app
 
