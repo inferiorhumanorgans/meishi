@@ -139,7 +139,7 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
   end
 
   # For legibility let's underscore it and let the supeclass call it
-  prop :resource_type do
+  prop :resourcetype do
     s='<resourcetype><D:collection /><C:addressbook xmlns:C="urn:ietf:params:xml:ns:carddav"/></resourcetype>'
     Nokogiri::XML::DocumentFragment.parse(s)
   end

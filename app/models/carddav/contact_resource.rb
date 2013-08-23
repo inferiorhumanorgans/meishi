@@ -91,7 +91,7 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
     @contact.created_at
   end
 
-  prop :content_length do
+  prop :getcontentlength do
     @contact.to_s.size
   end
 
@@ -107,6 +107,9 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
     @contact.updated_at.httpdate
   end
 
+  prop :resourcetype do
+    s='<resourcetype></resourcetype>'
+    Nokogiri::XML::DocumentFragment.parse(s)
   end
 
 end
