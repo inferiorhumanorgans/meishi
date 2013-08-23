@@ -152,6 +152,16 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
     Nokogiri::XML::DocumentFragment.parse(s)
   end
 
+  prop :supported_collation_set do
+    s=
+    "<C:supported-collation-set xmlns:C='urn:ietf:params:xml:ns:carddav'>
+      <C:supported-collation>i;ascii-casemap</C:supported-collation>
+      <C:supported-collation>i;octet</C:supported-collation>
+      <C:supported-collation>i;unicode-casemap</C:supported-collation>
+    </C:supported-collation-set>"
+    Nokogiri::XML::DocumentFragment.parse(s)
+  end
+
   prop :supported_report_set do
     reports = %w(addressbook-multiget addressbook-query)
     s = "<D:supported-report-set>%s</D:supported-report-set>"

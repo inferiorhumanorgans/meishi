@@ -149,6 +149,7 @@ GEM
     uglifier (2.1.2)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
+    unicode_utils (1.4.0)
     unicorn (4.6.3)
       kgio (~> 2.6)
       rack
@@ -180,6 +181,7 @@ DEPENDENCIES
   sys-filesystem
   twitter-bootstrap-rails
   uglifier (>= 1.0.3)
+  unicode_utils
   unicorn
   uuidtools
   vcard (~> 0.2.0)

@@ -34,6 +34,7 @@ end
 gem 'jquery-rails'
 
 gem 'unicorn'
+gem 'unicode_utils'
 gem 'nokogiri'
 gem 'uuidtools'
 gem 'vcard', '~> 0.2.0'
