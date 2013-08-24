@@ -37,7 +37,7 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
     raise BadRequest unless @contact.update_from_vcard_text(vcf)
 
     if @contact.save
-      @public_path = "/book/#{@address_book.id}/#{@contact.uid}"
+      @public_path = Rails.application.routes.url_helpers.contact_path(@address_book.id, @contact.uid)
       response['ETag'] = @contact.etag
       Created
     else
