@@ -13,3 +13,7 @@
 # ActiveSupport::Inflector.inflections do |inflect|
 #   inflect.acronym 'RESTful'
 # end
+
+module TextHelper
+  extend ActionView::Helpers::TextHelper
+end

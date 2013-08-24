@@ -149,6 +149,34 @@ class Carddav::AddressBookController < Carddav::BaseController
 
     fields = Field.arel_table
 
+    limit = nil
+    limits = request_document.xpath("/#{xpath_element('addressbook-query', :carddav)}/#{xpath_element('limit', :carddav)}")
+
+    # Not RFC compliant, but it helps us enforce sane requests
+    if limits.count > 1
+      xml_error(BadRequest) do |err|
+        err['C'].send :'conflicting-limits-specified'
+      end
+    elsif limits.count == 1
+      limits = limits.first.xpath('./*')
+      # Not RFC compliant, but it helps us enforce sane requests
+      if limits.count != 1
+        xml_error(BadRequest) do |err|
+          err['C'].send :'conflicting-limits-specified'
+        end
+      end
+
+      limits = limits.first
+      if limits.name != 'nresults'
+        # Not RFC compliant, but it helps us enforce sane requests
+        xml_error(BadRequest) do |err|
+          err['C'].send :'only-nresults-supported'
+        end
+      end
+
+      limit = limits.text.to_i
+    end
+
     filter_def = request_document.xpath("/#{xpath_element('addressbook-query', :carddav)}/#{xpath_element('filter', :carddav)}").first
     filters = filter_def.xpath("./#{xpath_element('prop-filter', :carddav)}")
 
@@ -184,7 +212,12 @@ class Carddav::AddressBookController < Carddav::BaseController
       when 'i;unicode-casemap'
         collation_type = :unicode
       end
-      raise BadRequest unless collation_type
+      # RFC 6352 §8.3
+      unless collation_type
+        xml_error(PreconditionFailed) do |err|
+          err['C'].send :'supported-collation'
+        end
+      end
 
       prop_filter.xpath('*').each do |condition|
         match_type = nil
@@ -198,7 +231,12 @@ class Carddav::AddressBookController < Carddav::BaseController
         when 'starts-with'
           match_type = :starts_with
         end
-        raise BadRequest unless match_type
+        # RFC 6352 §8.6
+        unless match_type
+          xml_error(PreconditionFailed) do |err|
+            err['C'].send :'supported-filter'
+          end
+        end
 
         value_field = nil
         match_value = nil
@@ -210,7 +248,6 @@ class Carddav::AddressBookController < Carddav::BaseController
           value_field = :unicode_casemap
           match_value = Comparators::UnicodeCasemap.prepare(condition.text)
         end
-        raise BadRequest unless value_field
 
         case match_type
         when :contains
@@ -247,7 +284,32 @@ class Carddav::AddressBookController < Carddav::BaseController
                       .where(query)
                       .uniq
 
+    if contacts.length > Meishi::Application.config.max_number_of_results_per_report
+      # RFC 6352 §8.6
+      xml_error(Conflict) do |err|
+        err.send :'number-of-matches-within-limits'
+      end
+    end
+
+    over_limit = nil
+    if limit and limit > 0
+      over_limit = contacts.count if contacts.count > limit
+      contacts = contacts[0..(limit-1)]
+    end
+
     multistatus do |xml|
+      if over_limit
+        xml.response do
+          xml.href resource.public_path
+          xml.status "#{http_version} #{InsufficientStorage.status_line}"
+          xml.error do
+            xml.send :'number-of-matches-within-limits'
+          end
+
+          xml.responsedescription "Only #{contacts.count} of #{TextHelper.pluralize(over_limit, 'matching record')} were returned.", :'xml:lang' => :en
+        end
+      end
+
       contacts.each do |contact|
         xml.response do
           href = Rails.application.routes.url_helpers.contact_path(resource.address_book, contacts.first, :format => :vcf)

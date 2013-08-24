@@ -11,4 +11,6 @@ Meishi::Application.configure do
 
   # Set to true for remote access from a browser (ex: CardDAVMate)
   config.permissive_cross_domain_policy = false
+
+  config.max_number_of_results_per_report = 20
 end
