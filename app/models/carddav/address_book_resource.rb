@@ -1,5 +1,7 @@
 class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
 
+  attr_accessor :address_book
+
   # The CardDAV spec requires that certain resources not be returned for an
   # allprop request.  It's nice to keep a list of all the properties we support
   # in the first place, so let's keep a separate list of the ones that need to

@@ -4,6 +4,15 @@ class Field < ActiveRecord::Base
 
   validates_presence_of :name, :value
 
+  before_save :normalize_for_collation
+
+  def normalize_for_collation
+    self.unicode_casemap = Comparators::UnicodeCasemap.prepare(self.value)
+    self.ascii_casemap = Comparators::ASCIICasemap.prepare(self.value)
+
+    return true
+  end
+
   # FN = Full Name
   # N = Family Name;Given Name;Additional Names;Honorific Prefixes;Honorific Suffixes
   # TEL = TYPE=foo:number

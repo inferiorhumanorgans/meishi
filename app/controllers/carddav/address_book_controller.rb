@@ -66,6 +66,8 @@ class Carddav::AddressBookController < Carddav::BaseController
     case request_document.root.name
     when 'addressbook-multiget'
       addressbook_multiget
+    when 'addressbook-query'
+      addressbook_query
     else
       xml_error do |err|
         err.send :'supported-report'
@@ -100,9 +102,6 @@ class Carddav::AddressBookController < Carddav::BaseController
       end
     end
 
-    props = request_document.xpath("/#{xpath_element('addressbook-multiget', :carddav)}/#{xpath_element('prop')}").children.find_all{|n| n.element?}.map{|n|
-      to_element_hash(n)
-    }
     # Handle the address-data element
     # - Check for child properties (vCard fields)
     # - Check for mime-type and version.  If present they must match vCard 3.0 for now since we don't support anything else.
@@ -126,14 +125,14 @@ class Carddav::AddressBookController < Carddav::BaseController
           xml.href _href
 
           path = File.split(URI.parse(_href).path).last
-          Rails.logger.error "Creating child w/ ORIG=#{resource.public_path} HREF=#{_href} FILE=#{path}!"
+          Rails.logger.error "Creating child w/ ORIG=#{resource.public_path} HREF=#{_href} FILE=#{path}!" if debug_multiget
 
           # TODO: Write a test to cover asking for a report expecting contact objects but given an address book path
           # Yes, CardDAVMate does this.
           cur_resource = resource.is_self?(_href) ? resource : resource.child(File.split(path).last)
           
           if cur_resource.exist?
-            propstats(xml, get_properties(cur_resource, props))
+            propstats(xml, get_properties(cur_resource, get_request_props_hash('addressbook-multiget', request_document)))
           else
             xml.status "#{http_version} #{NotFound.status_line}"
           end
@@ -141,6 +140,137 @@ class Carddav::AddressBookController < Carddav::BaseController
         end
       end
     end
+  end
+
+  def addressbook_query
+    debug_report = ENV['MEISHI_DEBUG_REPORT_LIST'] =~ /query/
+
+    Rails.logger.debug "addressbook-query depth: #{depth.inspect}, should be 1 or infinity" if debug_report
+
+    fields = Field.arel_table
+
+    filter_def = request_document.xpath("/#{xpath_element('addressbook-query', :carddav)}/#{xpath_element('filter', :carddav)}").first
+    filters = filter_def.xpath("./#{xpath_element('prop-filter', :carddav)}")
+
+    global_test = nil
+    case (filter_def[:test] || 'anyof')
+    when 'allof'
+      global_test = :and
+    when 'anyof'
+      global_test = :or
+    end
+    raise BadRequest unless global_test
+
+    filter_query = []
+
+    filters.each do |prop_filter|
+      prop_name = prop_filter[:name]
+      prop_query = fields[:name].eq(prop_name)
+      conditions = []
+
+      prop_test = nil
+      case (prop_filter[:test] || 'anyof')
+      when 'anyof'
+        prop_test = :or
+      when 'allof'
+        prop_test = :and
+      end
+      
+      raise BadRequest unless prop_test
+
+      case (prop_filter[:collation] || 'i;unicode-casemap')
+      when 'i;ascii-casemap'
+        collation_type = :ascii
+      when 'i;unicode-casemap'
+        collation_type = :unicode
+      end
+      raise BadRequest unless collation_type
+
+      prop_filter.xpath('*').each do |condition|
+        match_type = nil
+        case (condition[:'match-type'] || 'equals')
+        when 'contains'
+          match_type = :contains
+        when 'ends-with'
+          match_type = :ends_with
+        when 'equals'
+          match_type = :equals
+        when 'starts-with'
+          match_type = :starts_with
+        end
+        raise BadRequest unless match_type
+
+        value_field = nil
+        match_value = nil
+        case collation_type
+        when :ascii
+          value_field = :ascii_casemap
+          match_value = Comparators::ASCIICasemap.prepare(condition.text)
+        when :unicode
+          value_field = :unicode_casemap
+          match_value = Comparators::UnicodeCasemap.prepare(condition.text)
+        end
+        raise BadRequest unless value_field
+
+        case match_type
+        when :contains
+          conditions << fields[value_field].matches("%#{match_value}%")
+        when :ends_with
+          conditions << fields[value_field].matches("%#{match_value}")
+        when :equals
+          conditions << fields[value_field].eq(match_value)
+        when :starts_with
+          conditions << fields[value_field].matches("#{match_value}%")
+        end
+
+      end
+
+      next if conditions.empty?
+
+      cur_filter_query = conditions.shift
+      conditions.each do |condition|
+        cur_filter_query = cur_filter_query.send(prop_test, condition)
+      end
+
+      filter_query << prop_query.and(cur_filter_query)
+    end
+
+    query = Arel::Nodes::Grouping.new(filter_query.shift)
+    filter_query.each do |condition|
+      query = query.send(global_test, Arel::Nodes::Grouping.new(condition))
+    end
+
+    contacts = Contact.joins(:address_book)
+                      .where('address_books.id' => resource.address_book.id)
+                      .where('address_books.user_id' => current_user.id)
+                      .joins(:fields)
+                      .where(query)
+                      .uniq
+
+    multistatus do |xml|
+      contacts.each do |contact|
+        xml.response do
+          href = Rails.application.routes.url_helpers.contact_path(resource.address_book, contacts.first, :format => :vcf)
+          xml.href href
+
+          cur_resource = resource.is_self?(href) ? resource : resource.child(contact.uid)
+
+          if cur_resource.exist?
+            propstats(xml, get_properties(cur_resource, get_request_props_hash('addressbook-query', request_document)))
+          else
+            xml.status "#{http_version} #{NotFound.status_line}"
+          end
+
+        end
+      end
+    end
+  end
+
+  protected
+  def get_request_props_hash(root_element, request_document)
+    request_document.xpath("/#{xpath_element(root_element, :carddav)}/#{xpath_element('prop')}").children.find_all{|n| n.element?}.map{|n|
+      to_element_hash(n)
+    }
   end
 
 end

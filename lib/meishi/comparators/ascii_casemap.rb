@@ -4,12 +4,16 @@ class Comparators::ASCIICasemap
   #  0: a == b
   #  1: a > b
   # RFC 4790
-  LOWERCASE_RANGE = ('a'.ord..'z'.ord)
+
+  # SO GROSS
+  def self.prepare(a)
+    a.clone.force_encoding("ISO-8859-1").tr(('A'..'Z').to_a.to_s, ('a'..'z').to_a.to_s)
+  end
 
   def self.compare(a, b)
 
-    a_string = a.clone.force_encoding("ISO-8859-1")
-    b_string = b.clone.force_encoding("ISO-8859-1")
+    a_string = prepare(a)
+    b_string = prepare(b)
 
     a_length = a_string.length
     b_length = b_string.length
@@ -26,14 +30,6 @@ class Comparators::ASCIICasemap
       b_ord = b_string[i].ord
 
       if (a_ord != b_ord)
-        if LOWERCASE_RANGE.include? a_ord
-          a_ord = 'A'.ord + (a_ord - 'a'.ord)
-        end
-
-        if LOWERCASE_RANGE.include? b_ord
-          b_ord = 'A'.ord + (b_ord - 'a'.ord)
-        end
-
         return -1 if (a_ord < b_ord)
 
         return 1 if (b_ord < a_ord)

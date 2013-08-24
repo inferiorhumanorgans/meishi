@@ -1,5 +1,10 @@
 # Per RFC 4790
 class Comparators::Octet
+
+  def prepare(a)
+    return a.clone
+  end
+
   def self.compare(a,b)
     a_length = a.length
     b_length = b.length
