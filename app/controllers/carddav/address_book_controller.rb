@@ -312,7 +312,7 @@ class Carddav::AddressBookController < Carddav::BaseController
 
       contacts.each do |contact|
         xml.response do
-          href = Rails.application.routes.url_helpers.contact_path(resource.address_book, contacts.first, :format => :vcf)
+          href = Rails.application.routes.url_helpers.contact_path(resource.address_book, contacts.first)
           xml.href href
 
           cur_resource = resource.is_self?(href) ? resource : resource.child(contact.uid)
