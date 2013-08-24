@@ -65,7 +65,7 @@ Meishi aims to be fully standards compliant CardDAV contacts server.  That means
 
 ### Current status of compliance
 
-Because calendaring is not a goal, RFCs [4324](http://tools.ietf.org/html/rfc4324), [4791](http://tools.ietf.org/html/rfc4791) and [5546](http://tools.ietf.org/html/rfc5546) aren't (and won't be) on my radar.  Wikipedia breaks down the server compliance into the following categories:
+Because calendaring is not a goal, RFCs [4324](http://tools.ietf.org/html/rfc4324), [4791](http://tools.ietf.org/html/rfc4791) and [5546](http://tools.ietf.org/html/rfc5546) aren't (and won't be) on my radar.  [Wikipedia](http://en.wikipedia.org/wiki/Comparison_of_CalDAV_and_CardDAV_implementations) breaks down the server compliance into the following categories:
 
 * HTTP/1.1 ([RFC 2616](http://tools.ietf.org/html/rfc2616))
   - Because Meishi is using Rack+Rails+dav4rack the assumption is that it is HTTP/1.1 compliant.
