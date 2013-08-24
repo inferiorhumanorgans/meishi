@@ -34,21 +34,21 @@ Meishi::Application.routes.draw do
       :root_uri_path => '/book',
       :resource_class => Carddav::ContactResource,
       :controller_class => Carddav::ContactController
-    )
+    ), :as => :contact
 
     match '/book/:book_id', :to => DAV4Rack::Handler.new(
       :root => '/book',
       :root_uri_path => '/book',
       :resource_class => Carddav::AddressBookResource,
       :controller_class => Carddav::AddressBookController
-    )
+    ), :as => :book
 
     match '/book/', :to => DAV4Rack::Handler.new(
       :root => '/book',
       :root_uri_path => '/book',
       :resource_class => Carddav::AddressBookCollectionResource,
       :controller_class => Carddav::BaseController
-    )
+    ), :as => :books
   end
 
   root :to => 'control_panel#index'
