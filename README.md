@@ -46,9 +46,12 @@ needs to be removed.  And, finally, webdav_protocol.js needs to be edited to
 set the Depth header properly on an addressbook-multiget report (currently
 line 2177).
 
-### MacOS X AddresBook.app
+### MacOS X
 
-Has been tested with 10.6.8 and a single address book, and autodiscovery should work.  Takes the principal URL *with the port number*. Ex: https://carddav.example.com:80/carddav/
+AddresBook.app has been tested with 10.6.8 and a single address book, and
+autodiscovery should work.  Takes the principal URL *with the port number*.
+Ex: http://carddav.example.com:80/carddav/  Contacts.app in OSX 10.8 has
+been tested and should work.
 
 ### SoGo Connector
 
