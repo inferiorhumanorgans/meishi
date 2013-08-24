@@ -239,7 +239,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
     options = []
     options << fluff.delete(:object) if fluff.include? :object
     options << url_options.merge(fluff)
-    Rails.application.routes.url_helpers.send(method, *options)
+    URLHelpers.send(method, *options)
   end
 
   private
