@@ -55,7 +55,9 @@ been tested and should work.
 
 ### SoGo Connector
 
-Has been tested with Thunderbird 11 and read/write support should work.  Takes an address book URL.  The address book ID can be found from the web interface.  Ex:  https://carddav.example.com:80/book/123/
+Has been tested with Thunderbird 11 and read/write support should work.  Takes
+an address book URL.  The address book ID can be found from the web interface.
+Ex:  http://carddav.example.com:80/book/123/
 
 ## Standards Compliance
 
