@@ -23,10 +23,6 @@ class Carddav::PrincipalResource < Carddav::BaseResource
     return true
   end
   
-  def children
-    []
-  end
-
   ## Properties follow in alphabetical order
   protected
 
