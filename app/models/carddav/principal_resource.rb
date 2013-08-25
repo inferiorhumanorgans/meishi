@@ -42,11 +42,11 @@ class Carddav::PrincipalResource < Carddav::BaseResource
   end
 
   prop :creation_date do
-    # TODO: There's probably a more efficient way to grab the oldest ctime
-    # Perhaps we should assume that the address book will never be newer than
-    # any of its constituent contacts?
-    contact_ids = AddressBook.find_all_by_user_id(current_user.id).collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
-    Field.first(:order => 'created_at ASC', :conditions => ['contact_id IN (?)', contact_ids]).created_at
+    # It stands to reason that there won't be anything older than AddressBook
+    # since contacts and their fields are dependent upon an AddressBook
+    oldest_addressbook = AddressBook.where(user_id: current_user.id).order('created_at ASC').first
+    raise NotFound unless oldest_addressbook
+    oldest_addressbook.created_at
   end
 
   prop :displayname do
