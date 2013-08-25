@@ -206,7 +206,12 @@ class Carddav::BaseResource < DAV4Rack::Resource
   end
 
   # These are not properties.
+
   protected
+  def children
+    []
+  end
+
   def self.merge_properties(all, explicit)
     ret = all.dup
     explicit.each do |key, value|
