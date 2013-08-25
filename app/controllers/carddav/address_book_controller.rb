@@ -90,7 +90,6 @@ class Carddav::AddressBookController < Carddav::BaseController
   def addressbook_multiget
     debug_multiget = ENV['MEISHI_DEBUG_REPORT_LIST'] =~ /multiget/
 
-    # TODO: Include a DAV:error response
     # CardDAV §8.7 clearly states Depth must equal zero for this report
     # But Apple's AddressBook.app (OSX 10.6) sets the depth to infinity anyhow.
     # BB10.2 sets depth to 1 for some unknown reason.
