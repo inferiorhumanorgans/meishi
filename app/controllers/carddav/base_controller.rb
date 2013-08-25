@@ -19,6 +19,10 @@ class Carddav::BaseController < DAV4Rack::Controller
     super
     @response["DAV"] = "1, 2, access-control, addressbook"
     @response['Access-Control-Allow-Origin'] = '*' if Meishi::Application.config.permissive_cross_domain_policy == true
+
+    @options[:pretty_xml] = (ENV['MEISHI_PRETTY_XML'] == '1')
+
+    self
   end
 
   # Default OPTIONS handler.
