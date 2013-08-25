@@ -64,12 +64,7 @@ class Carddav::PrincipalResource < Carddav::BaseResource
   end
 
   prop :last_modified do
-    address_books = AddressBook.find_all_by_user_id(current_user.id)
-    contact_ids = address_books.collect{|ab| ab.contacts.collect{|c| c.id}}.flatten
-    field = Field.first(:order => 'updated_at DESC', :conditions => ['contact_id IN (?)', contact_ids])
-    next field.updated_at unless field.nil?
-    next address_books.first.updated_at unless address_books.nil?
-    Time.now
+    AddressBook.where(user_id: current_user.id).order('updated_at DESC').first.updated_at
   end
 
   # For legibility let's underscore it and let the supeclass call it
