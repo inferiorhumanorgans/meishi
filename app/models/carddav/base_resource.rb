@@ -152,6 +152,50 @@ class Carddav::BaseResource < DAV4Rack::Resource
     super(element)
   end
 
+  def set_property(element, value)
+    name = element[:name]
+    namespace = element[:ns_href]
+
+    begin
+      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
+      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::ALL_PROPERTIES)
+      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
+    rescue => e
+      if ENV['MEISHI_DEBUG_SUPPORTED_PROPS'].to_i >= 2
+        Rails.logger.info "Failed to parse supported properties #{e.inspect}"
+      end
+
+      # Just in case we don't have any properties defined on the subclass
+      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
+    end
+
+    unless our_properties.include? namespace
+      raise BadRequest
+    end
+
+    fn = "#{name.underscore}="
+
+    if our_properties[namespace].include?(name)
+      # The base dav4rack handler will use nicer looking function names for some properties
+      # Let's just humor it.  If we don't define a local prop_foo method, fall back to the
+      # super class's implementation of get_property which we hope will handle our request.
+      if self.respond_to?(fn)
+        return self.send(fn.to_sym, element[:attributes], value)
+      end
+    end
+
+    debug_props = ENV['MEISHI_DEBUG_SUPPORTED_PROPS'].to_i
+    if debug_props >= 1
+      Rails.logger.debug "Skipping ns:\"#{namespace}\" prop:#{name} sym:#{fn.inspect} on #{self.class} respond: #{self.respond_to?(fn)} our_props: #{our_properties[namespace].include?(name)}"
+      if debug_props >= 2
+        Rails.logger.debug "Our properties: #{our_properties[namespace].join(', ')}"
+        Rails.logger.debug ""
+      end
+    end
+
+    super(element)
+  end
+
   # Some properties shouldn't be included in an allprop request
   # but it's nice to do some sanity checking so keeping a list is good
   def properties
