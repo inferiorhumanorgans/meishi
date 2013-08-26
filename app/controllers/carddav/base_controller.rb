@@ -42,6 +42,7 @@ class Carddav::BaseController < DAV4Rack::Controller
   # @return [DAV4Rack::HTTPStatus]
   def options
     @response['Allow'] = @verbs
+    @response['Content-Length'] = 0
     OK
   end
 

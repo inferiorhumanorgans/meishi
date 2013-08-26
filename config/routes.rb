@@ -8,11 +8,11 @@ Meishi::Application.routes.draw do
       resources :contacts
     end
   end
-  
+
   get '/book/:address_book_id/:id(.:format)' => 'contacts#show', :defaults => {:format => :vcf}
 
   ## BEGIN MacOSX 10.6 hacks
-  match '/' => redirect('/carddav/'), :via => [:propfind]
+  match '/' => redirect('/carddav/'), :via => [:propfind, :options]
   match '/principals/carddav' => redirect('/carddav/'), :via => [:propfind]
   ## END MacOSX 10.6 hacks 
 
