@@ -144,7 +144,12 @@ class Carddav::BaseResource < DAV4Rack::Resource
   # Some properties shouldn't be included in an allprop request
   # but it's nice to do some sanity checking so keeping a list is good
   def properties
-    Carddav::BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
+    Carddav::BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES).inject([]) do |ret, (namespace, proplist)|
+      proplist.each do |prop|
+        ret << {name: prop, ns_href: namespace, children: [], attributes: []}
+      end
+      ret
+    end
   end
 
   # Properties in alphabetical order
