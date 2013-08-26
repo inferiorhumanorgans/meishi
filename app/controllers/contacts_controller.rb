@@ -24,6 +24,9 @@ class ContactsController < ApplicationController
   end
   
   def show
+    response['ETag'] = @contact.etag
+    response['Last-Modified'] = @contact.updated_at.httpdate
+
     respond_to do |format|
       format.html
       format.vcf  { render :text => @contact.vcard_raw }
