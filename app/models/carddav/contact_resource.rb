@@ -62,6 +62,15 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
   protected
 
   prop :address_data, args: true do
+
+    # If the client's specified a mime type, ensure that it's text/vcard or
+    # text/vcard v3.0.  We don't support anything else. Yet.
+    if (@attributes['content-type'].present? and @attributes['content-type'] != 'text/vcard') or
+       (@attributes['content-type'] == 'text/vcard' and @attributes['version'].present? and @attributes['version'] != '3.0') or
+       (!@attributes['content-type'].present? and @attributes['version'].present?)
+      raise UnsupportedMediaType
+    end
+
     if @children.empty?
       data = @contact.vcard.to_s
     else
