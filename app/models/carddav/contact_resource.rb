@@ -12,13 +12,15 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
   end
 
   def exist?
-    Rails.logger.error "ContactR::exist?(#{public_path});"
     return true if Contact.find_by_uid(File.split(public_path).last)
     return false
+    Rails.logger.debug "ContactR::exist?(#{public_path});" if @debug_contact >= 1
   end
 
   def setup
     super
+
+    @debug_contact = ENV['MEISHI_DEBUG_CONTACT_RESOURCE'].to_i
 
     path_str = @public_path.dup
 
@@ -46,7 +48,8 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
 
   # Overload parent in this case because we want a different class (AddressBookResource)
   def parent
-    Rails.logger.error "Contact::Parent FOR: #{@public_path}"
+    Rails.logger.debug "Contact::Parent FOR: #{@public_path}" if @debug_contact >= 1
+
     elements = File.split(@public_path)
     return nil if (elements.first == '/book')
     Carddav::AddressBookResource.new(elements.first, elements.first, @request, @response, @options.merge(:user => @user))
