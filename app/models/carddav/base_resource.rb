@@ -60,7 +60,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
     # @return [void]
   def self.prop(method, options={}, &block)
     self.class_eval do
-      define_method(method) do |attributes={}, children=[]|
+      define_method(method) do |attributes={}, children=Nokogiri::XML::NodeSet.new(Nokogiri::XML(''))|
         self.instance_variable_set(:@attributes, attributes)
         self.instance_variable_set(:@children, children)
         self.instance_variable_set(:@attribute, method)
