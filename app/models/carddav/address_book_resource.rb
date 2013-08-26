@@ -85,6 +85,18 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
     @address_book.name
   end
 
+  prop :displayname= do
+    raise Conflict if @children.text.empty?
+
+    @address_book.name = @children.text
+
+    # This is wrong.  We should change the attributes and check validity
+    # here... and then commit the changes in the proppatch method.
+    raise OK if @address_book.save
+
+    raise InternalServerError
+  end
+
   prop :getctag do
     s="<APPLE1:getctag xmlns:APPLE1='http://calendarserver.org/ns/'>#{@address_book.updated_at.to_i}</APPLE1:getctag>"
     Nokogiri::XML::DocumentFragment.parse(s)
