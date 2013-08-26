@@ -53,6 +53,11 @@ autodiscovery should work.  Takes the principal URL *with the port number*.
 Ex: http://carddav.example.com:80/carddav/  Contacts.app in OSX 10.8 has
 been tested and should work.
 
+### pyCardDAV
+
+As of d9f4440, pyCardDAV should work.  It takes an address book URL.  Ex:
+http://carddav.example.com/book/123/
+
 ### SoGo Connector
 
 Has been tested with Thunderbird 11 and read/write support should work.  Takes
