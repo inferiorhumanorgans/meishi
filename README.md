@@ -26,6 +26,15 @@ To get started:
 * Run the meishi:first_run task, and follow the prompts
 * Deploy with your favorite rack server (phusion, unicorn, mongrel, etc)
 
+By default Meishi is not configured to handle HTTPS requests.  Typically
+this is a job for whatever server gets put in front of Meishi.  However,
+for *development purposes only* it is possible to configure Meishi to
+handle HTTPS connections with Webrick.  To accomplish this, place a
+certificate named webrick.crt and an unencrypted private key named
+webrick.key in config/cert/.  With these files in place it now use
+the rails_secure script instead of rails.  E.x.:
+bundle e script/rails_secure server
+
 ## Getting Started (client)
 
 ### Android CardDAV-Sync
@@ -119,6 +128,22 @@ Because calendaring is not a goal, RFCs [4324](http://tools.ietf.org/html/rfc432
 * Tests, tests, and more tests
 * Fill in the DAV bits
 * grep -r TODO * | egrep -v "^(README|Binary)" | cut -d ' ' -f 2- | sed 's/.*#.//g'
+
+### Debugging
+
+Additional logging can be enabled via certain environment variables.  The
+following debugging knobs are available:
+
+* MEISHI_DEBUG_CONTACT_RESOURCE
+* MEISHI_DEBUG_HTTP_HEADERS
+* MEISHI_DEBUG_PROPPATCH
+* MEISHI_DEBUG_QUOTA
+* MEISHI_DEBUG_REPORT
+* MEISHI_DEBUG_REPORT_LIST
+* MEISHI_DEBUG_SUPPORTED_PROPS
+* MEISHI_DEBUG_XML_REQUEST
+* MEISHI_DEBUG_XML_RESPONSE
+* MEISHI_PRETTY_XML
 
 ## License
 
