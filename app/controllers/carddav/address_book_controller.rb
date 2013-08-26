@@ -38,6 +38,19 @@ RFC 6352
 =end
 class Carddav::AddressBookController < Carddav::BaseController
 
+  def initialize(request, response, options={})
+    super
+
+    @verbs = 'OPTIONS,PROPFIND,PROPPATCH,REPORT,LOCK,UNLOCK'
+
+    self
+  end
+
+  def options
+    @response['Allow'] = @verbs
+    OK
+  end
+
   def report
     debug_report = ENV['MEISHI_DEBUG_REPORT'].to_i
     debug_request = ENV['MEISHI_DEBUG_XML_REQUEST'].to_i

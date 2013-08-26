@@ -17,10 +17,13 @@ class Carddav::BaseController < DAV4Rack::Controller
   # header.  Neat.
   def initialize(request, response, options={})
     super
-    @response["DAV"] = "1, 2, access-control, addressbook"
+
+    @response['DAV'] = '1, 2, access-control, addressbook'
     @response['Access-Control-Allow-Origin'] = '*' if Meishi::Application.config.permissive_cross_domain_policy == true
 
     @options[:pretty_xml] = (ENV['MEISHI_PRETTY_XML'] == '1')
+
+    @verbs = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
 
     self
   end
@@ -28,7 +31,7 @@ class Carddav::BaseController < DAV4Rack::Controller
   # Default OPTIONS handler.
   # @return [DAV4Rack::HTTPStatus]
   def options
-    @response["Allow"] = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
+    @response['Allow'] = @verbs
     OK
   end
 
@@ -61,6 +64,10 @@ class Carddav::BaseController < DAV4Rack::Controller
 
     ret
   end
+  def report
+    @response['Allow'] = @verbs
+    MethodNotAllowed
+  end #
 
   protected
 
