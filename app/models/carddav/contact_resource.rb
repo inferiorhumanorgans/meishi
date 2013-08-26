@@ -20,8 +20,6 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
   def setup
     super
 
-    @address_book = AddressBook.find_by_id_and_user_id(@book_path, current_user.id)
-
     path_str = @public_path.dup
 
     @address_book = AddressBook.find_by_id_and_user_id(@book_path, current_user.id)
