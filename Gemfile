@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']='true'
+
 gem 'rails', '~> 3.2.14'
 
 gem 'sqlite3'
