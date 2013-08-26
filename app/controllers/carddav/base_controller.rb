@@ -41,11 +41,20 @@ class Carddav::BaseController < DAV4Rack::Controller
   # - MEISHI_DEBUG_XML_REQUEST If >=1 log the XML request. If >= 2 pretty print it.
   # - MEISHI_DEBUG_XML_RESPONSE If >=1 log the XML response. If >= 2 pretty print it.
   def propfind
-    ret = super
+    ret = nil
+    exceptional_error = nil
 
+    begin
+      ret = super
+    rescue Status => e
+      exceptional_error = e
+    rescue => e
+      raise e
+    ensure
     debug_request = ENV['MEISHI_DEBUG_XML_REQUEST'].to_i
     if debug_request >= 1
       Rails.logger.debug "*** REQUEST BEGIN"
+        Rails.logger.debug request.body.read.inspect
       Rails.logger.debug request_document.to_xml((debug_request >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
       Rails.logger.debug "*** REQUEST END"
     end
@@ -61,9 +70,11 @@ class Carddav::BaseController < DAV4Rack::Controller
 
       Rails.logger.debug "*** RESPONSE END"
     end
-
-    ret
   end
+    raise exceptional_error if exceptional_error
+    return ret
+  end
+
   def report
     @response['Allow'] = @verbs
     MethodNotAllowed
