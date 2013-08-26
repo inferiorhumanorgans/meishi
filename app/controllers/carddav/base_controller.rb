@@ -43,15 +43,8 @@ class Carddav::BaseController < DAV4Rack::Controller
   # - MEISHI_DEBUG_XML_REQUEST If >=1 log the XML request. If >= 2 pretty print it.
   # - MEISHI_DEBUG_XML_RESPONSE If >=1 log the XML response. If >= 2 pretty print it.
   def propfind
-    ret = nil
-    exceptional_error = nil
-
     begin
-      ret = super
-    rescue Status => e
-      exceptional_error = e
-    rescue => e
-      raise e
+      super
     ensure
       debug_request = ENV['MEISHI_DEBUG_XML_REQUEST'].to_i
       if debug_request >= 1
@@ -73,8 +66,6 @@ class Carddav::BaseController < DAV4Rack::Controller
         Rails.logger.debug "*** RESPONSE END"
       end
     end
-    raise exceptional_error if exceptional_error
-    return ret
   end
 
   def report

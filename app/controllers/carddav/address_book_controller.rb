@@ -70,31 +70,34 @@ class Carddav::AddressBookController < Carddav::BaseController
 
     Rails.logger.debug "REPORT type: #{request_document.root.name}" if debug_report >= 1
 
-    if debug_request >= 1
-      Rails.logger.debug "*** REQUEST BEGIN"
-      Rails.logger.debug request_document.to_xml((debug_request >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
-      Rails.logger.debug "*** REQUEST END"
-    end
-
-    case request_document.root.name
-    when 'addressbook-multiget'
-      addressbook_multiget
-    when 'addressbook-query'
-      addressbook_query
-    else
-      xml_error do |err|
-        err.send :'supported-report'
+    begin
+      case request_document.root.name
+      when 'addressbook-multiget'
+        addressbook_multiget
+      when 'addressbook-query'
+        addressbook_query
+      else
+        xml_error do |err|
+          err.send :'supported-report'
+        end
       end
-    end
 
-    if debug_response >= 1
-      Rails.logger.debug "*** RESPONSE BEGIN"
-      x = Nokogiri::XML(response.body) do |config|
-        config.default_xml.noblanks
+    ensure
+      if debug_request >= 1
+        Rails.logger.debug "*** REQUEST BEGIN"
+        Rails.logger.debug request_document.to_xml((debug_request >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+        Rails.logger.debug "*** REQUEST END"
       end
-      Rails.logger.debug x.to_xml((debug_response >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
 
-      Rails.logger.debug "*** RESPONSE END"
+      if debug_response >= 1
+        Rails.logger.debug "*** RESPONSE BEGIN"
+        x = Nokogiri::XML(response.body) do |config|
+          config.default_xml.noblanks
+        end
+        Rails.logger.debug x.to_xml((debug_response >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+
+        Rails.logger.debug "*** RESPONSE END"
+      end
     end
 
   end
