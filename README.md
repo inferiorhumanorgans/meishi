@@ -46,6 +46,10 @@ needs to be removed.  And, finally, webdav_protocol.js needs to be edited to
 set the Depth header properly on an addressbook-multiget report (currently
 line 2177).
 
+### eM Client
+
+eM Client 5.x should work.  It takes a principal URL.
+
 ### MacOS X
 
 AddresBook.app has been tested with 10.6.8 and a single address book, and

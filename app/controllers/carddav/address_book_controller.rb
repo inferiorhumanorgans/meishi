@@ -104,7 +104,8 @@ class Carddav::AddressBookController < Carddav::BaseController
     debug_multiget = ENV['MEISHI_DEBUG_REPORT_LIST'] =~ /multiget/
 
     # CardDAV §8.7 clearly states Depth must equal zero for this report
-    # But Apple's AddressBook.app (OSX 10.6) sets the depth to infinity anyhow.
+    # But Apple's AddressBook.app (OSX 10.6) and emClient 5.x don't set the
+    # depth header.
     # BB10.2 sets depth to 1 for some unknown reason.
     ignore_depth = Quirks.match(:IGNORE_ADDRESS_BOOK_MULTIGET_DEPTH, request.user_agent)
 

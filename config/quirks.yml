@@ -8,8 +8,8 @@
 :CURRENT_PRINCIPAL_NO_URL:
 - /Darwin\/10\./
 
-# MacOS 10.6 sets the depth to infinity for addressbook-multiget reports yet
-# CardDAV §8.7 clearly states Depth must equal zero for this report
+# Ignore the depth header
 :IGNORE_ADDRESS_BOOK_MULTIGET_DEPTH:
 - /Darwin\/10\./
 - RIM
+- /eM\ Client\/5\.0\..*/
