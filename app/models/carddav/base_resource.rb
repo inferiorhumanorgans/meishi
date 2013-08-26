@@ -9,18 +9,13 @@ class Carddav::BaseResource < DAV4Rack::Resource
   # need to be defined there
   BASE_PROPERTIES = {
     'DAV:' => %w(
-      acl
-      acl-restrictions
       creationdate
       current-user-principal
-      current-user-privilege-set
       displayname
       getcontentlength
       getcontenttype
       getetag
       getlastmodified
-      group
-      owner
       principal-URL
       resourcetype
     ),
@@ -29,6 +24,21 @@ class Carddav::BaseResource < DAV4Rack::Resource
     # to dav4rack and carddav properties will return a NotImplemented instead
     # of BadRequest
     'urn:ietf:params:xml:ns:carddav' => []
+  }
+
+  # Properties that should be implemented by every resource but that should
+  # not be included in an allprop request.  See also: RFC 3744 §4 and §5
+  BASE_EXPLICIT_PROPERTIES = {
+    'DAV:' => %w(
+      acl
+      acl-restrictions
+      current-user-privilege-set
+      group
+      inherited-acl-set
+      owner
+      principal-collection-set
+      supported-privilege-set
+    )
   }
 
     # This is a convenience function for CalDAV properties.  It will define
@@ -99,7 +109,8 @@ class Carddav::BaseResource < DAV4Rack::Resource
     namespace = element[:ns_href]
 
     begin
-      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES)
+      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
+      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::ALL_PROPERTIES)
       our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
     rescue => e
       if ENV['MEISHI_DEBUG_SUPPORTED_PROPS'].to_i >= 2
@@ -107,7 +118,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
       end
 
       # Just in case we don't have any properties defined on the subclass
-      our_properties = BASE_PROPERTIES
+      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
     end
 
     unless our_properties.include? namespace
