@@ -5,8 +5,8 @@ class Carddav::PrincipalResource < Carddav::BaseResource
   EXPLICIT_PROPERTIES = { 
     'DAV:' => %w(
       alternate-URI-set
+      group-member-set
       group-membership
-      group-membership-set
     ),
     'urn:ietf:params:xml:ns:carddav' => %w(
       addressbook-home-set

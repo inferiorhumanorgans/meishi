@@ -41,6 +41,15 @@ class Carddav::BaseResource < DAV4Rack::Resource
     )
   }
 
+  # List of supported privileges and their English descriptions.
+  PRIVILEGES = {
+    :read                               => 'Read any object',
+    :'read-acl'                         => 'Read ACL',
+    :'read-current-user-privilege-set'  => 'Read current user privilege set property',
+    :'write-content'                    => 'Write resource content',
+    :unlock                             => 'Unlock resource'
+  }
+
     # This is a convenience function for CalDAV properties.  It will define
     # a function named after the first argument (a symbol) that populates three
     # instance variables: @attributes, @children, and @attribute.
@@ -67,8 +76,6 @@ class Carddav::BaseResource < DAV4Rack::Resource
       protected method
     end
   end
-
-  PRIVILEGES = %w(read read-acl read-current-user-privilege-set)
 
     # Performs some initial configuration. This function is called from the
     # DAV4Rack initializer and does some mangling to make OSX Snow Leopard's
@@ -211,6 +218,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
   # Properties need to be protected so that dav4rack doesn't alias them away
   protected
 
+  # RFC 3744 §5.5
   # Let's implement the simplest policy possible... modifying the permissions
   # via WebDAV is not supported (yet?).
   # TODO: Articulate permissions here for all users as part of a proper admin implementation
@@ -232,6 +240,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
     Nokogiri::XML::DocumentFragment.parse(s)      
   end
 
+  # RFC 3744 §5.6
   prop :acl_restrictions do
     s="<D:acl-restrictions xmlns:D='DAV:'><D:grant-only/><D:no-invert/></D:acl-restrictions>"
     Nokogiri::XML::DocumentFragment.parse(s)
@@ -245,6 +254,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
     Nokogiri::XML::DocumentFragment.parse(s)
   end
 
+  # RFC 3744 §5.4
   prop :current_user_privilege_set do
     s='<D:current-user-privilege-set xmlns:D="DAV:">%s</D:current-user-privilege-set>'
 
@@ -252,17 +262,53 @@ class Carddav::BaseResource < DAV4Rack::Resource
     Nokogiri::XML::DocumentFragment.parse(s)
   end
 
+  # RFC 3744 §5.2
+  # Servers MAY implement DAV:group as protected property and MAY return
+  # an empty DAV:group element as property value in case no group
+  # information is available.
   prop :group do
   end
 
+  # RFC 3744 §5.7
+  # <!ELEMENT inherited-acl-set (href*)>
+  prop :inherited_acl_set do
+  end
+
+  # RFC 3744 §5.1
+  # <!ELEMENT owner (href?)>
   prop :owner do
     s="<D:owner xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:owner>"
+    Nokogiri::XML::DocumentFragment.parse(s)
+  end
+
+  # RFC 3744 §5.1.2
+  prop :owner= do
+    raise Forbidden
+  end
+
+  # RFC 3744 §5.8
+  prop :principal_collection_set do
+    s="<D:principal-collection-set xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:principal-collection-set>"
     Nokogiri::XML::DocumentFragment.parse(s)
   end
 
   prop :principal_url do
     s="<D:principal-URL xmlns:D='DAV:'><D:href>#{url_or_path(:principal)}</D:href></D:principal-URL>"
     Nokogiri::XML::DocumentFragment.parse(s)
+  end
+
+  # RFC 3744 §5.3
+  prop :supported_privilege_set do
+    xml_snippet('supported-privilege-set') do |xml|
+      PRIVILEGES.each do |privilege, description|
+        xml.send :'supported-privilege' do
+          xml.privilege do
+            xml.send privilege
+            xml.description(description, {lang: :en})
+          end
+        end
+      end
+    end
   end
 
   # These are not properties.
@@ -280,6 +326,19 @@ class Carddav::BaseResource < DAV4Rack::Resource
       ret[key].uniq!
     end
     ret
+  end
+
+  def xml_snippet(root_type)
+    raise ArgumentError.new 'Expecting block' unless block_given?
+
+    builder = Nokogiri::XML::Builder.new do |xml_base|
+      xml_base.send(root_type.to_s, {'xmlns:D' => 'DAV:'}.merge(root_xml_attributes)) do
+        xml_base.parent.namespace = xml_base.parent.namespace_definitions.first
+        xml = xml_base['D']
+        yield xml
+      end
+    end
+    builder.doc.root
   end
 
   # Call this so that we log requests with unexepcted extra fluff
@@ -308,9 +367,9 @@ class Carddav::BaseResource < DAV4Rack::Resource
   end
 
   private
-  def get_privileges_aggregate
-    privileges_aggregate = PRIVILEGES.inject('') do |ret, priv|
-      ret << '<D:privilege><%s /></privilege>' % priv
+  def get_privileges_aggregate(privilege_element='D:privilege')
+    privileges_aggregate = PRIVILEGES.inject('') do |ret, (priv, desc)|
+      ret << "<#{privilege_element}><#{priv} /></#{privilege_element}>" % priv
     end
   end
 

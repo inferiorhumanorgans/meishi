@@ -8,7 +8,6 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
   # be explicitly requested.
   ALL_PROPERTIES =  {
     'DAV:' => %w(
-      current-user-privilege-set
       supported-report-set
     ),
     "urn:ietf:params:xml:ns:carddav" => %w(
