@@ -27,6 +27,14 @@ class Carddav::BaseController < DAV4Rack::Controller
 
     @verbs = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
 
+    if ENV['MEISHI_DEBUG_HTTP_HEADERS'].to_i >= 1
+      Rails.logger.debug "Dumping request headers:"
+      request.env.select {|k,v| k.start_with? 'HTTP_'}.each do |k,v|
+        Rails.logger.debug "#{k.sub(/^HTTP_/, '').titleize.gsub(' ', '-')}: #{v}"
+      end
+      Rails.logger.debug "---"
+    end
+
     self
   end
 
