@@ -1,5 +1,8 @@
 Meishi::Application.configure do
 
+  config.meishi_version = '0.2'
+  config.meishi_long_version = 'Meishi v0.2'
+
   # :absolute, :percent, :off
   config.quota_global_limit = :percent
 

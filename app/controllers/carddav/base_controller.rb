@@ -20,6 +20,8 @@ class Carddav::BaseController < DAV4Rack::Controller
 
     @response['DAV'] = '1, 2, access-control, addressbook'
     @response['Access-Control-Allow-Origin'] = '*' if Meishi::Application.config.permissive_cross_domain_policy == true
+    @response['Server'] = Meishi::Application.config.meishi_long_version
+    @response['X-Meishi-Version'] = Meishi::Application.config.meishi_long_version
 
     @options[:pretty_xml] = (ENV['MEISHI_PRETTY_XML'] == '1')
 
@@ -51,26 +53,26 @@ class Carddav::BaseController < DAV4Rack::Controller
     rescue => e
       raise e
     ensure
-    debug_request = ENV['MEISHI_DEBUG_XML_REQUEST'].to_i
-    if debug_request >= 1
-      Rails.logger.debug "*** REQUEST BEGIN"
+      debug_request = ENV['MEISHI_DEBUG_XML_REQUEST'].to_i
+      if debug_request >= 1
+        Rails.logger.debug "*** REQUEST BEGIN"
         Rails.logger.debug request.body.read.inspect
-      Rails.logger.debug request_document.to_xml((debug_request >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
-      Rails.logger.debug "*** REQUEST END"
-    end
-
-    debug_response = ENV['MEISHI_DEBUG_XML_RESPONSE'].to_i
-    if debug_response >= 1
-      Rails.logger.debug "*** RESPONSE BEGIN"
-      x = Nokogiri::XML(response.body) do |config|
-        config.default_xml.noblanks
+        Rails.logger.debug request_document.to_xml((debug_request >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+        Rails.logger.debug "*** REQUEST END"
       end
 
-      Rails.logger.debug x.to_xml((debug_response >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+      debug_response = ENV['MEISHI_DEBUG_XML_RESPONSE'].to_i
+      if debug_response >= 1
+        Rails.logger.debug "*** RESPONSE BEGIN"
+        x = Nokogiri::XML(response.body) do |config|
+          config.default_xml.noblanks
+        end
 
-      Rails.logger.debug "*** RESPONSE END"
+        Rails.logger.debug x.to_xml((debug_response >= 2) ? YES_INDENT_FLAGS : NO_INDENT_FLAGS)
+
+        Rails.logger.debug "*** RESPONSE END"
+      end
     end
-  end
     raise exceptional_error if exceptional_error
     return ret
   end
