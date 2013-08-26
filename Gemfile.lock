@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/inferiorhumanorgans/dav4rack.git
-  revision: ab3404cd5b4315394ef37b45376687715cff9dd8
+  revision: 14502d23d33700c6fe89daff084d5a2f9d64bfb6
   specs:
     dav4rack (0.2.11)
       nokogiri (>= 1.4.2)
