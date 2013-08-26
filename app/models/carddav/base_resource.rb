@@ -160,6 +160,8 @@ class Carddav::BaseResource < DAV4Rack::Resource
   end
 
   def set_property(element, value)
+    Rails.logger.debug "set_property(#{element.inspect}, #{value.inspect})" if ENV['MEISHI_DEBUG_PROPPATCH'].to_i >= 1
+
     name = element[:name]
     namespace = element[:ns_href]
 
