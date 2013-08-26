@@ -46,6 +46,11 @@ class Carddav::AddressBookController < Carddav::BaseController
     self
   end
 
+  def get
+    @response['Allow'] = @verbs
+    MethodNotAllowed
+  end
+
   def options
     @response['Allow'] = @verbs
     OK
