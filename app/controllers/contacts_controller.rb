@@ -24,8 +24,13 @@ class ContactsController < ApplicationController
   end
   
   def show
+    # Use fresh? instead of stale? and [] instead of .etag so that we can
+    # preserve our non Rails-y style ETag.
+
     response['ETag'] = @contact.etag
     response['Last-Modified'] = @contact.updated_at.httpdate
+
+    return head :not_modified if request.fresh?(response)
 
     respond_to do |format|
       format.html
