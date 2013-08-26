@@ -1,5 +1,5 @@
 class Carddav::ContactResource < Carddav::AddressBookBaseResource
-  attr_accessor :contact
+  attr_reader :contact
 
   ALL_PROPERTIES = {
     'urn:ietf:params:xml:ns:carddav' => %w(address-data)
@@ -12,9 +12,9 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
   end
 
   def exist?
-    return true if Contact.find_by_uid(File.split(public_path).last)
-    return false
     Rails.logger.debug "ContactR::exist?(#{public_path});" if @debug_contact >= 1
+
+    Contact.exists? uid: (File.split(public_path).last)
   end
 
   def setup
