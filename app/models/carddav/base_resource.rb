@@ -65,8 +65,12 @@ class Carddav::BaseResource < DAV4Rack::Resource
         self.instance_variable_set(:@children, children)
         self.instance_variable_set(:@attribute, method)
 
-        unless options[:args] == true
+        unless options[:args] == true or method =~ /=$/
           unexpected_arguments(attributes, children)
+        end
+
+        unless options[:noargs] == true or not method =~ /=$/
+          expected_arguments(attributes, children)
         end
 
         self.instance_exec &block
@@ -349,6 +353,15 @@ class Carddav::BaseResource < DAV4Rack::Resource
 
     Rails.logger.error "#{@attribute} request did not expect arguments: #{attributes.inspect} / #{children.inspect}"
   end
+
+  # Call this so that we can log requests where we expect children and
+  # don't get them.
+  def expected_arguments(attributes, children)
+    return unless (attributes.nil? or attributes.empty?) and (children.nil? or children.empty?)
+
+    Rails.logger.error "#{@attribute} request expected arguments: #{attributes.inspect} / #{children.inspect}"
+  end
+
 
   # Default URL builder options -- we need these because we're doing bad things by calling
   # the URL helpers from outside the view context.
