@@ -9,6 +9,12 @@
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-book icon-white"></i> Address Books <b class="caret"></b></a>
           <ul class="dropdown-menu">
+            <% current_user.address_books.each do |address_book| %>
+            <li><%= link_to address_book.name, address_book_url(address_book) -%></li>
+            <% end %>
+            <% unless current_user.address_books.empty? %>
+            <li class="divider" />
+            <% end %>
             <li><%= link_to 'All address books', address_books_url -%></li>
             <li><%= link_to 'New address book', new_address_book_url -%></li>
           </ul>
