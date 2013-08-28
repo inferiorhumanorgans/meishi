@@ -16,7 +16,7 @@ class Contact < ActiveRecord::Base
     data = ["BEGIN:VCARD", "VERSION:3.0"]
     has_ab_uid = false
     self.fields.each do |f|
-      data.push ('%s:%s' % [f.name, f.value])
+      data.push(Vcard::DirectoryInfo::Field.encode0(f.group, f.name, f.parameters || {}, f.value))
       has_ab_uid = true if (f.name == 'X-ABUID')
     end
     data.push "UID:%s" % self.uid
@@ -39,7 +39,8 @@ class Contact < ActiveRecord::Base
     # Pull out all the fields we specify ourselves.
     contents = vcf.fields.select {|f| !(%w(BEGIN VERSION UID END).include? f.name) }
     contents.each do |f|
-      fields.build(:name => f.name, :value => f.value)
+      parameters = f.params.inject({}) {|ret, param| ret[param] = f.pvalue(param); ret}
+      fields.build(group: f.group, name: f.name, parameters: parameters, value: f.value)
     end
 
   end

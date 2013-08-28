@@ -6,6 +6,8 @@ class Field < ActiveRecord::Base
 
   before_save :normalize_for_collation
 
+  serialize :parameters, JSON
+
   def normalize_for_collation
     self.unicode_casemap = Comparators::UnicodeCasemap.prepare(self.value)
     self.ascii_casemap = Comparators::ASCIICasemap.prepare(self.value)
