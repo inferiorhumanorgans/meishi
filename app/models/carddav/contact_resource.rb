@@ -62,6 +62,10 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
   # Properties in alphabetical order
   protected
 
+  prop :address_data= do
+    raise Forbidden
+  end
+
   prop :address_data, args: true do
 
     # If the client's specified a mime type, ensure that it's text/vcard or

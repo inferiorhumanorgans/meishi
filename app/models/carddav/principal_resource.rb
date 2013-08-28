@@ -63,6 +63,10 @@ class Carddav::PrincipalResource < Carddav::BaseResource
     AddressBook.where(user_id: current_user.id).order('updated_at DESC').first.updated_at
   end
 
+  prop :principal_address do
+    raise NotFound
+  end
+
   # For legibility let's underscore it and let the supeclass call it
   prop :resource_type do
     s='<resourcetype><D:collection /><D:principal/></resourcetype>'

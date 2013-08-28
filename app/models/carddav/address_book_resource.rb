@@ -59,6 +59,18 @@ class Carddav::AddressBookResource < Carddav::AddressBookBaseResource
     @address_book.name
   end
 
+  prop :addressbook_description= do
+    raise Conflict if @children.text.empty?
+
+    @address_book.name = @children.text
+
+    # This is wrong.  We should change the attributes and check validity
+    # here... and then commit the changes in the proppatch method.
+    raise OK if @address_book.save
+
+    raise InternalServerError
+  end
+
   prop :content_type do
     # Not the right type, oh well
     Mime::Type.lookup_by_extension(:dir).to_s
