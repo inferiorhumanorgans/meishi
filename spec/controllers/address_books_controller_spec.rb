@@ -8,6 +8,13 @@ describe AddressBooksController do
     @address_book2 = AddressBook.make!(:address_book2)
   end
 
+  describe "GET index" do
+    it "should return successfully" do
+      get :index
+      response.should be_success
+    end
+  end
+
   describe "GET new" do
     it "should return successfully" do
       get :new
@@ -15,24 +22,28 @@ describe AddressBooksController do
     end
   end
   
-  describe "GET create" do
+  describe "POST create" do
     pending "should return successfully" do
-      get :create
+      post :create
       response.should be_success
     end
   end
   
   describe "GET edit" do
-    pending "should route correctly with no arguments" do
-      should route(:get, :edit).to(:action => "edit")
-    end
-
     it "should return a not found error when given no arguments" do
       # It would be nice to ensure that the user will see a 404
       # not a 500 or a stack trace.
       # response.should be_not_found
 
       expect { get :edit, {} }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "should route correctly with an address book belonging to the current user" do
+      expect(:get => "/user/address_books/1/edit").to route_to(
+        :controller => "address_books",
+        :action => 'edit',
+        :id => '1'
+      )
     end
 
     it "should return successfully when provided with an address book belonging to the current user" do

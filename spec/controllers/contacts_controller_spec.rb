@@ -29,10 +29,23 @@ describe ContactsController do
     end
   end
   
-  describe "GET update" do
-    pending "should return successfully" do
-      get :new
-      response.should be_success
+  describe "PUT update" do
+    it "should return successfully" do
+      contact = Contact.make!(:contact1)
+      put :update, {
+        id: contact.uid,
+        address_book_id: 1,
+        contact: {
+          fields_attributes: {
+            :'0' => {"name"=>"FN", "value"=>"New Name", "_destroy"=>"false", "id"=>"1"}
+          }
+        }
+      }
+
+      response.should be_redirect
+      assigns(:contact).quick_name.should eq('New Name')
+      assigns(:contact).fields.length.should eq(2)
+      assigns(:contact).uid.should eq(contact.uid)
     end
   end
 
