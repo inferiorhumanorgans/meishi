@@ -73,7 +73,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
           expected_arguments(attributes, children)
         end
 
-        self.instance_exec &block
+        self.instance_exec(&block)
       end
 
       # DAV4Rack will clobber public methods, so let's make sure these are all protected.
