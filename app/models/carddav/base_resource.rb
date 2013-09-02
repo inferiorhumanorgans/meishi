@@ -120,18 +120,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
     name = element[:name]
     namespace = element[:ns_href]
 
-    begin
-      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
-      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::ALL_PROPERTIES)
-      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
-    rescue => e
-      if @debug_props >= 2
-        Rails.logger.info "Failed to parse supported properties #{e.inspect}"
-      end
-
-      # Just in case we don't have any properties defined on the subclass
-      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
-    end
+    our_properties = gather_properties
 
     unless our_properties.include? namespace
       raise BadRequest
@@ -169,18 +158,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
     name = element[:name]
     namespace = element[:ns_href]
 
-    begin
-      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
-      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::ALL_PROPERTIES)
-      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES)
-    rescue => e
-      if @debug_props >= 2
-        Rails.logger.info "Failed to parse supported properties #{e.inspect}"
-      end
-
-      # Just in case we don't have any properties defined on the subclass
-      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
-    end
+    our_properties = gather_properties
 
     unless our_properties.include? namespace
       raise BadRequest
@@ -211,7 +189,7 @@ class Carddav::BaseResource < DAV4Rack::Resource
   # Some properties shouldn't be included in an allprop request
   # but it's nice to do some sanity checking so keeping a list is good
   def properties
-    Carddav::BaseResource.merge_properties(BASE_PROPERTIES, self.class::ALL_PROPERTIES).inject([]) do |ret, (namespace, proplist)|
+    gather_properties(false).inject([]) do |ret, (namespace, proplist)|
       proplist.each do |prop|
         ret << {name: prop, ns_href: namespace, children: [], attributes: []}
       end
@@ -321,6 +299,26 @@ class Carddav::BaseResource < DAV4Rack::Resource
   protected
   def children
     []
+  end
+
+  def gather_properties(include_explicit=true)
+    begin
+      our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
+      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::ALL_PROPERTIES)
+      our_properties = Carddav::BaseResource.merge_properties(our_properties, self.class::EXPLICIT_PROPERTIES) if include_explicit
+    rescue => e
+      if @debug_props >= 2
+        Rails.logger.info "Failed to parse supported properties #{e.inspect}"
+      end
+
+      # Just in case we don't have any properties defined on the subclass
+      if include_explicit
+        our_properties = Carddav::BaseResource.merge_properties(BASE_PROPERTIES, BASE_EXPLICIT_PROPERTIES)
+      else
+        our_properties = BASE_PROPERTIES.dup
+      end
+    end
+    our_properties
   end
 
   def self.merge_properties(all, explicit)
