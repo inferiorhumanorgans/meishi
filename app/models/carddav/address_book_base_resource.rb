@@ -40,7 +40,7 @@ class Carddav::AddressBookBaseResource < Carddav::BaseResource
       # is_card (/book/:book_id/:card_uid)
       @book_path = Pathname(path_str).parent.split.last.to_s
       @is_card = true
-    when /^\/book\/[0-9]*$/
+    when /^\/book\/[0-9]+$/
       # is_book (/book/:book_id)
       @book_path = Pathname(path_str).split.last.to_s
       @is_book = true
