@@ -83,4 +83,35 @@ describe Carddav::BaseController do
     end
   end
 
+  explicit_props = {
+    'DAV:' => %w(
+      acl
+      acl-restrictions
+      current-user-privilege-set
+      group
+      inherited-acl-set
+      owner
+      principal-collection-set
+      supported-privilege-set
+    )
+  }
+  explicit_props.each do |namespace_url, properties|
+    properties.each do |prop|
+      it "should have the property #{namespace_url}#{prop} " do
+        s="
+        <?xml version='1.0' encoding='utf-8' ?>
+        <D:propfind xmlns:D='DAV:' xmlns:X='#{namespace_url}'>
+          <D:prop>
+            <X:#{prop}/>
+          </D:prop>
+        </D:propfind>
+        "
+        propfind('/book/', input: s, 'HTTP_DEPTH' => '0')
+        response.status.should eq DAV4Rack::HTTPStatus::MultiStatus.code
+        response_xml.xpath('/D:error', response_xml.root.namespaces).should be_empty
+        response_xml.should contain_property(prop, namespace_url)
+      end
+    end
+  end
+
 end
