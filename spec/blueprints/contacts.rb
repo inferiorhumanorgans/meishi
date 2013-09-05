@@ -1,9 +1,14 @@
 Field.blueprint {}
 
+Contact.blueprint do
+  created_at      { Time.now }
+  updated_at      { Time.now }
+  uid             { UUIDTools::UUID.random_create.to_s }
+end
+
 Contact.blueprint(:contact1) do
   id              { 1 }
   address_book_id { 1 }
-  uid             { UUIDTools::UUID.random_create.to_s }
   fields          {
     [
 
@@ -35,7 +40,6 @@ END:VCARD
 Contact.blueprint(:contact2) do
   id              { 2 }
   address_book_id { 1 }
-  uid             { UUIDTools::UUID.random_create.to_s }
   fields          {
     [
       Field.make!(contact: object, name: 'N', value: "Gump;Forrest;;;"),
@@ -84,11 +88,32 @@ END:VCARD
 =end
 Contact.blueprint(:contact3) do
   id              { 3 }
-  address_book_id { 1 }
+  address_book_id { 2 }
   uid             { UUIDTools::UUID.random_create.to_s }
   fields          {
     [
-      Field.make!(contact: object, name: 'N', value: "Gump;Forrest")
+      Field.make!(contact: object, name: 'N',                 value: 'Doe;John;;;'),
+      Field.make!(contact: object, name: 'FN',                value: 'John Doe'),
+      Field.make!(contact: object, name: 'ORG',               value: 'Example.com Inc.;'),
+      Field.make!(contact: object, name: 'TITLE',             value: 'Imaginary test person'),
+      Field.make!(contact: object, name: 'EMAIL',             parameters: 'type=INTERNET;type=WORK;type=pref', value: 'johnDoe@example.org'),
+      Field.make!(contact: object, name: 'TEL',               parameters: 'type=WORK;type=pref', value: '+1 617 555 1212'),
+      Field.make!(contact: object, name: 'TEL',               parameters: 'type=CELL', value: '+1 781 555 1212'),
+      Field.make!(contact: object, name: 'TEL',               parameters: 'type=HOME', value: '+1 202 555 1212'),
+      Field.make!(contact: object, name: 'TEL',               parameters: 'type=WORK', value: '+1 (617) 555-1234'),
+      Field.make!(contact: object, name: 'ADR',               group: 'item1', parameters: 'type=WORK', value: ';;2 Example Avenue;Anytown;NY;01111;USA'),
+      Field.make!(contact: object, name: 'X-ABADR',           group: 'item1', value: 'us'),
+      Field.make!(contact: object, name: 'ADR',               group: 'item2', parameters: 'type=HOME', value: ';;3 Acacia Avenue;Newtown;MA;02222;USA'),
+      Field.make!(contact: object, name: 'X-ABADR',           group: 'item2', value: 'us'),
+      Field.make!(contact: object, name: 'NOTE',                              value: 'John Doe has a long and varied history\, being documented on more police files that anyone else. Reports of his death are alas numerous.'),
+      Field.make!(contact: object, name: 'URL',               group: 'item3', parameters: 'type=pref', value: 'http\://www.example/com/doe'),
+      Field.make!(contact: object, name: 'X-ABLabel',         group: 'item3', value: '_$!<HomePage>!$_'),
+      Field.make!(contact: object, name: 'URL',               group: 'item4', value: 'http\://www.example.com/Joe/foaf.df'),
+      Field.make!(contact: object, name: 'X-ABLabel',         group: 'item4', value: 'FOAF'),
+      Field.make!(contact: object, name: 'X-ABRELATEDNAMES',  group: 'item5', parameters: 'type=pref', value: 'Jane Doe'),
+      Field.make!(contact: object, name: 'X-ABLabel',         group: 'item5', value: '_$!<Friend>!$_'),
+      Field.make!(contact: object, name: 'CATEGORIES',                        value: 'Work,Test group'),
+      Field.make!(contact: object, name: 'X_ABUID',                           value: '5AD380FD-B2DE-4261-BA99-DE1D1DB52FBE\:ABPerson')
     ]
   }
 end
