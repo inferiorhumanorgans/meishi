@@ -14,6 +14,14 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
   def exist?
     Rails.logger.debug "ContactR::exist?(#{public_path});" if @debug_contact >= 1
 
+    # If @address_book isn't populated either the address book doesn't exist
+    # or it belongs to someone else.  If @contact doesn't exist, either the
+    # contact doesn't exist or it's not part of this address book.
+    #
+    # In either case, return NotFound to ensure we don't allow people to
+    # discover others' contacts / address books.
+    return false unless @address_book and @contact
+
     Contact.exists? uid: (File.split(public_path).last)
   end
 
@@ -27,7 +35,7 @@ class Carddav::ContactResource < Carddav::AddressBookBaseResource
     @address_book = AddressBook.find_by_id_and_user_id(@book_path, current_user.id)
 
     uid = File.split(path_str).last
-    @contact = Contact.find_by_uid_and_address_book_id(uid, @address_book.id)
+    @contact = Contact.find_by_uid_and_address_book_id(uid, @address_book.id) if @address_book
   end
 
   def put(request, response, vcf)

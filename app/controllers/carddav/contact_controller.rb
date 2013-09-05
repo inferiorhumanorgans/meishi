@@ -6,6 +6,7 @@ class Carddav::ContactController < Carddav::BaseController
     resource.lock_check
 
     unless resource.contact.address_book.user.id == current_user.id
+      # We should never get here.  This case should be handled by #exist?
       raise Forbidden
     end
 
