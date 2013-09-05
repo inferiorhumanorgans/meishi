@@ -22,13 +22,6 @@ describe Carddav::AddressBookController do
     enable_debug_logging
   end
 
-  METHODS = %w(GET PUT POST DELETE PROPFIND PROPPATCH MKCOL COPY MOVE OPTIONS HEAD LOCK UNLOCK REPORT)
-  METHODS.each do |method|
-    define_method(method.downcase) do |*args|
-      request(method, *args)
-    end
-  end
-
   describe "GET /book/1" do
     it "should return a method-not-allowed failure" do
       get('/book/1')

@@ -24,13 +24,6 @@ describe Carddav::AddressBookController do
     enable_debug_logging
   end
 
-  METHODS = %w(GET PUT POST DELETE PROPFIND PROPPATCH MKCOL COPY MOVE OPTIONS HEAD LOCK UNLOCK REPORT)
-  METHODS.each do |method|
-    define_method(method.downcase) do |*args|
-      request(method, *args)
-    end
-  end
-
   describe "DELETE" do
     it "should fail on a bogus contact and return 404-not-found" do
       delete('/book/1/not-a-real-contact')

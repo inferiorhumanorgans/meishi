@@ -8,6 +8,15 @@ module DAVControllerMacros
     end
   end
 
+  DAV_METHODS = %w(GET PUT POST DELETE PROPFIND PROPPATCH MKCOL COPY MOVE OPTIONS HEAD LOCK UNLOCK REPORT)
+
+  DAV_METHODS.each do |method|
+    define_method(method.downcase) do |*args|
+      request(method, *args)
+    end
+  end
+  
+
   def request(method, uri, options={})
     options = {
       'HTTP_HOST' => 'localhost',
