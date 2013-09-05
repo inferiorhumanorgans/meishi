@@ -333,7 +333,7 @@ class Carddav::AddressBookController < Carddav::BaseController
 
       contacts.each do |contact|
         xml.response do
-          href = URLHelpers.contact_path(resource.address_book, contacts.first)
+          href = URLHelpers.contact_path(resource.address_book, contact)
           xml.href href
 
           cur_resource = resource.is_self?(href) ? resource : resource.child(contact.uid)
