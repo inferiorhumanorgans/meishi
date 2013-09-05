@@ -1,9 +1,5 @@
 class Carddav::AddressBookCollectionResource < Carddav::AddressBookBaseResource
 
-  def setup
-    super
-  end
-
   def exist?
     Rails.logger.error "ABCR::exist?(#{public_path});"
     return true
@@ -21,8 +17,24 @@ class Carddav::AddressBookCollectionResource < Carddav::AddressBookBaseResource
     end
   end
 
+  protected
+
+  def setup
+    super
+  end
+
   ## Properties follow in alphabetical order
+  prop :creation_date do
+    current_user.created_at
+  end
+
   prop :displayname do
     "#{current_user.username}'s Meishi Address Book Collection"
   end
+
+  prop :getlastmodified do
+    address_book = AddressBook.where(user_id: current_user).order('updated_at DESC').first
+    [current_user, address_book].compact.collect{|x| x.updated_at}.max.httpdate
+  end
+
 end
