@@ -24,6 +24,8 @@ class Carddav::AddressBookBaseResource < Carddav::BaseResource
     klass.new("#{new_public}#{name}", "#{new_path}#{name}", request, response, options.merge(:user => @user))
   end
 
+  protected
+
   def setup
     super
 
