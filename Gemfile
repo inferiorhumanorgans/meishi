@@ -31,6 +31,7 @@ end
 
 group :test do
   gem 'simplecov', :require => false
+  gem 'rake'
 end
 
 gem 'jquery-rails'

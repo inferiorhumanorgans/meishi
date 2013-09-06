@@ -173,6 +173,7 @@ DEPENDENCIES
   quiet_assets
   rails (~> 3.2.14)
   rails_warden
+  rake
   redcarpet
   rspec-rails (~> 2.6)
   sass-rails (~> 3.2.5)
