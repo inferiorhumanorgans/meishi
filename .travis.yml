@@ -5,7 +5,7 @@ rvm:
 
 before_install:
   - gem update --system
-  - RAILS_ENV=test bundle e rake meishi:setup_test
-  - RAILS_ENV=test bundle e rake db:migrate
+  - RAILS_ENV=test bundle exec rake meishi:setup_test
+  - RAILS_ENV=test bundle exec rake db:migrate
 
-script: bundle e rspec
+script: bundle exec rspec
