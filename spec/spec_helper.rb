@@ -1,49 +1,51 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
 
-require 'simplecov'
+unless ENV['NO_COV'] == 'true'
+  require 'simplecov'
 
-SimpleCov.start do
-  # Ignore our specs
-  add_filter do |file|
-    file.filename.sub(/^#{Rails.root.to_s}\//, '') =~ /^spec/
-  end
+  SimpleCov.start do
+    # Ignore our specs
+    add_filter do |file|
+      file.filename.sub(/^#{Rails.root.to_s}\//, '') =~ /^spec/
+    end
 
-  # Ignore our config files
-  add_filter do |file|
-    fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
-    (fn =~ /^config/)
-  end
+    # Ignore our config files
+    add_filter do |file|
+      fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
+      (fn =~ /^config/)
+    end
 
   
-  add_group "Models (ActiveRecord)" do |file|
-    fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
-    (fn =~ /^app\/models/) and !(fn =~ /app\/models\/carddav/)
+    add_group "Models (ActiveRecord)" do |file|
+      fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
+      (fn =~ /^app\/models/) and !(fn =~ /app\/models\/carddav/)
+    end
+
+    add_group "Models (dav4rack)" do |file|
+      fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
+      (fn =~ /^app\/models\/carddav/)
+    end
+
+    add_group "Controllers (ActionController)" do |file|
+      fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
+      (fn =~ /^app\/controllers/) and !(fn =~ /app\/controllers\/carddav/)
+    end
+
+    add_group "Controllers (dav4rack)" do |file|
+      fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
+      (fn =~ /^app\/controllers\/carddav/)
+    end
+
+    # add_group "CardDAV" do |file|
+    #   fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
+    #   (fn =~ /^app\/(controllers|models)\/carddav/)
+    # end
+
+    # add_group 'Views', 'app/views'
+    add_group 'Helpers', 'app/helpers'
+    # add_group "Initializers", 'config/initializers'
   end
-
-  add_group "Models (dav4rack)" do |file|
-    fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
-    (fn =~ /^app\/models\/carddav/)
-  end
-
-  add_group "Controllers (ActionController)" do |file|
-    fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
-    (fn =~ /^app\/controllers/) and !(fn =~ /app\/controllers\/carddav/)
-  end
-
-  add_group "Controllers (dav4rack)" do |file|
-    fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
-    (fn =~ /^app\/controllers\/carddav/)
-  end
-
-  # add_group "CardDAV" do |file|
-  #   fn = file.filename.sub(/^#{Rails.root.to_s}\//, '')
-  #   (fn =~ /^app\/(controllers|models)\/carddav/)
-  # end
-
-  # add_group 'Views', 'app/views'
-  add_group 'Helpers', 'app/helpers'
-  # add_group "Initializers", 'config/initializers'
 end
 
 require File.expand_path("../../config/environment", __FILE__)

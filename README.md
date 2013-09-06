@@ -12,9 +12,9 @@ be lightweight and easy to deploy in the "install a few gems and go" sense.
 * Dav4Rack from the inferiorhumanorgans respository
 * Unicorn (optional)
 
-### Testing Requirements
-* Rspec-rails
-* Machinist
+### Testing
+* [![Build Status](https://travis-ci.org/inferiorhumanorgans/meishi.png)](https://travis-ci.org/inferiorhumanorgans/meishi)
+* Requirements: rspec-rails, Machinist, simplecov
 
 ## Getting Started (server)
 
