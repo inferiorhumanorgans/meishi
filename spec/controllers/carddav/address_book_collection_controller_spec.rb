@@ -11,7 +11,7 @@ describe Carddav::BaseController do
       :root => '/book',
       :root_uri_path => '/book',
       :resource_class => Carddav::AddressBookCollectionResource,
-      :controller_class => Carddav::BaseController
+      :controller_class => Carddav::AddressBookCollectionController
     )
 
     AddressBook.make!(:address_book1)

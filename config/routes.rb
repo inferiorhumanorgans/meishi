@@ -47,7 +47,7 @@ Meishi::Application.routes.draw do
       :root => '/book',
       :root_uri_path => '/book',
       :resource_class => Carddav::AddressBookCollectionResource,
-      :controller_class => Carddav::BaseController
+      :controller_class => Carddav::AddressBookCollectionController
     ), :as => :books
   end
 
