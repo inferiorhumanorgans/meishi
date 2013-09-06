@@ -25,7 +25,7 @@ class Carddav::BaseController < DAV4Rack::Controller
 
     @options[:pretty_xml] = (ENV['MEISHI_PRETTY_XML'] == '1')
 
-    @verbs = 'OPTIONS,HEAD,GET,PUT,POST,DELETE,PROPFIND,PROPPATCH,MKCOL,COPY,MOVE,LOCK,UNLOCK'
+    @verbs = %w(OPTIONS HEAD GET PUT POST DELETE PROPFIND PROPPATCH MKCOL COPY MOVE LOCK UNLOCK)
 
     if ENV['MEISHI_DEBUG_HTTP_HEADERS'].to_i >= 1
       Rails.logger.debug "Dumping request headers:"
@@ -41,7 +41,7 @@ class Carddav::BaseController < DAV4Rack::Controller
   # Default OPTIONS handler.
   # @return [DAV4Rack::HTTPStatus]
   def options
-    @response['Allow'] = @verbs
+    @response['Allow'] = verbs
     @response['Content-Length'] = 0
     OK
   end
@@ -78,11 +78,15 @@ class Carddav::BaseController < DAV4Rack::Controller
   end
 
   def report
-    @response['Allow'] = @verbs
+    @response['Allow'] = verbs
     MethodNotAllowed
   end #
 
   protected
+
+  def verbs
+    @verbs.join(',')
+  end
 
   # Takes a block, gives it an xml builder with a DAV:error root element, and
   # will render the XML body and set an HTTP error code.  The HTTP status is

@@ -41,18 +41,19 @@ class Carddav::AddressBookController < Carddav::BaseController
   def initialize(request, response, options={})
     super
 
-    @verbs = 'OPTIONS,PROPFIND,PROPPATCH,REPORT,LOCK,UNLOCK'
+    @verbs -= %w(HEAD GET PUT POST DELETE MKCOL COPY MOVE)
+    @verbs << 'REPORT'
 
     self
   end
 
   def get
-    @response['Allow'] = @verbs
+    @response['Allow'] = verbs
     MethodNotAllowed
   end
 
   def options
-    @response['Allow'] = @verbs
+    @response['Allow'] = verbs
     OK
   end
 
