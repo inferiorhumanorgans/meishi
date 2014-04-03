@@ -7,18 +7,19 @@ namespace :meishi do
 
     # 40 through 126 allows us to easily exclude ASCII characteres that
     # would need to be escaped in a single quoted string, change as desired.
-    SALT_CHAR_RANGE=40..126
+    # Skip ASCII code 47 (backslash char), to avoid possible escaping of last single quote in generated string
+    SALT_CHAR_ARRAY=(40..126).to_a - [47]
 
     STDOUT.puts "Generating session secret"
     sess_secret = ''
     SALT_SIZE.times do
-      sess_secret << rand(SALT_CHAR_RANGE).chr
+      sess_secret << SALT_CHAR_ARRAY.sample.chr
     end
 
     STDOUT.puts "Generating user password salt"
     pass_secret = ''
     SALT_SIZE.times do
-      pass_secret << rand(SALT_CHAR_RANGE).chr
+      pass_secret << SALT_CHAR_ARRAY.sample.chr
     end
 
     STDOUT.puts "Saving salts"
