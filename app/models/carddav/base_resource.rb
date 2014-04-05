@@ -132,7 +132,8 @@ class Carddav::BaseResource < DAV4Rack::Resource
       # The base dav4rack handler will use nicer looking function names for some properties
       # Let's just humor it.  If we don't define a local prop_foo method, fall back to the
       # super class's implementation of get_property which we hope will handle our request.
-      if self.respond_to?(fn)
+      # Ruby 2.x needs additional argument to respond_to? in order to check protected methods
+      if self.respond_to?(fn, RUBY_VERSION.to_i >= 2 ? true : false)
         if element[:children].empty? and element[:attributes].empty?
           return self.send(fn.to_sym)
         else
@@ -170,7 +171,8 @@ class Carddav::BaseResource < DAV4Rack::Resource
       # The base dav4rack handler will use nicer looking function names for some properties
       # Let's just humor it.  If we don't define a local prop_foo method, fall back to the
       # super class's implementation of get_property which we hope will handle our request.
-      if self.respond_to?(fn)
+      # Ruby 2.x needs additional argument to respond_to? in order to check protected methods
+      if self.respond_to?(fn, RUBY_VERSION.to_i >= 2 ? true : false)
         return self.send(fn.to_sym, element[:attributes], value)
       end
     end

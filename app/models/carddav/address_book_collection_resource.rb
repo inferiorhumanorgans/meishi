@@ -17,11 +17,11 @@ class Carddav::AddressBookCollectionResource < Carddav::AddressBookBaseResource
     end
   end
 
-  protected
-
   def setup
     super
   end
+
+  protected
 
   ## Properties follow in alphabetical order
   prop :creation_date do
